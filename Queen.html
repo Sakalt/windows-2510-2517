@@ -14,29 +14,66 @@
         }
 
         header {
-            background-color: #1d1d1d;
+            background-color: #0078d4;
             color: #fff;
             padding: 10px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            position: fixed;
-            width: 100%;
-            top: 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #start-button {
+            background-color: #0067b8;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #start-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #start-menu ul li {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #start-menu ul li:hover {
+            background-color: #eee;
+        }
+
+        main {
+            padding: 20px;
         }
 
         .app {
             display: none;
             padding: 20px;
-            border: none;
-            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            background-color: #fff;
             position: absolute;
-            top: 50px;
-            left: 20px;
+            top: 100px;
+            left: 50px;
             width: 800px;
             height: 600px;
             overflow: auto;
-            border-radius: 10px;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
         }
 
@@ -45,7 +82,7 @@
         }
 
         .app .window-header {
-            background-color: #2600bb;
+            background-color: #0078d4;
             color: #fff;
             padding: 5px;
             cursor: move;
@@ -53,7 +90,6 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #fff;
-            border-radius: 10px 10px 0 0;
         }
 
         .app .window-controls {
@@ -65,36 +101,57 @@
             padding: 5px;
             color: #fff;
             border: none;
-            background: #333;
-            border-radius: 5px;
+            background: #0067b8;
             cursor: pointer;
         }
 
         .app .window-controls button:hover {
-            background: #0009ac;
+            background: #0054a2;
         }
 
-        #paintCanvas, #cameraCanvas, #browserIframe {
+        iframe {
+            width: 100%;
+            height: 100%;
             border: none;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        textarea {
+            width: 100%;
+            height: 90%;
+        }
+
+        #timerDisplay {
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <audio id="startup-sound" src="queenmyedit_ai_sfx_0723141056.mp3" preload="auto"></audio>
     <header>
         <h1>Windows Queen</h1>
         <button id="start-button">スタート</button>
         <div id="start-menu">
             <ul>
                 <li onclick="openApp('paint')">ペイント</li>
-                <li onclick="openApp('camera')">カメラ</li>
                 <li onclick="openApp('notepad')">ノートパッド</li>
                 <li onclick="openApp('browser')">ブラウザ</li>
                 <li onclick="openApp('mediaplayer')">メディアプレイヤー</li>
                 <li onclick="openApp('timer')">タイマー</li>
-                <li onclick="openApp('ai')">AI</li>
-                <li onclick="openApp('time')">時間</li>
-                <li onclick="openApp('version-info')">バージョン情報</li>
+                <li onclick="openApp('explorer')">エクスプローラー</li>
+                <li onclick="openApp('controlPanel')">コントロールパネル</li>
+                <li onclick="openApp('clock')">時計</li>
+                <li onclick="openApp('paint')">ペイント</li>
+                <li onclick="openApp('calculator')">電卓</li>
+                <li onclick="openApp('camera')">カメラ</li>
+                <li onclick="openApp('games')">ゲーム</li>
+                <li onclick="openApp('settings')">設定</li>
+                <li onclick="openApp('help')">ヘルプ</li>
+                <li onclick="openApp('updates')">アップデート</li>
             </ul>
         </div>
     </header>
@@ -110,23 +167,19 @@
                 </div>
             </div>
             <canvas id="paintCanvas" width="800" height="600"></canvas>
-            <button onclick="saveDrawing()">保存</button>
         </div>
 
-        <!-- Camera App -->
-        <div id="camera" class="app">
+        <!-- Notepad App -->
+        <div id="notepad" class="app">
             <div class="window-header">
-                <span>カメラ</span>
+                <span>ノートパッド</span>
                 <div class="window-controls">
-                    <button onclick="minimizeApp('camera')">最小化</button>
-                    <button onclick="maximizeApp('camera')">最大化</button>
-                    <button onclick="closeApp('camera')">閉じる</button>
+                    <button onclick="minimizeApp('notepad')">最小化</button>
+                    <button onclick="maximizeApp('notepad')">最大化</button>
+                    <button onclick="closeApp('notepad')">閉じる</button>
                 </div>
             </div>
-            <video id="video" autoplay></video>
-            <button onclick="takePhoto()">写真を撮る</button>
-            <button onclick="savePhoto()">保存</button>
-            <canvas id="cameraCanvas" width="800" height="600"></canvas>
+            <textarea id="notepadText"></textarea>
         </div>
 
         <!-- Browser App -->
@@ -139,9 +192,7 @@
                     <button onclick="closeApp('browser')">閉じる</button>
                 </div>
             </div>
-            <input type="text" id="browserUrl" placeholder="URLを入力">
-            <button onclick="navigateBrowser()">移動</button>
-            <iframe id="browserIframe" src="" width="100%" height="500px"></iframe>
+            <iframe id="browserIframe" src=""></iframe>
         </div>
 
         <!-- Media Player App -->
@@ -157,8 +208,6 @@
             <video id="mediaPlayerVideo" controls>
                 <source src="sample-video.mp4" type="video/mp4">
             </video>
-            <input type="file" id="mediaFileInput" />
-            <button onclick="loadMedia()">メディアをロード</button>
         </div>
 
         <!-- Timer App -->
@@ -177,134 +226,176 @@
             <div id="timerDisplay"></div>
         </div>
 
-        <!-- AI App -->
-        <div id="ai" class="app">
+        <!-- Explorer App -->
+        <div id="explorer" class="app">
             <div class="window-header">
-                <span>AI</span>
+                <span>エクスプローラー</span>
                 <div class="window-controls">
-                    <button onclick="minimizeApp('ai')">最小化</button>
-                    <button onclick="maximizeApp('ai')">最大化</button>
-                    <button onclick="closeApp('ai')">閉じる</button>
+                    <button onclick="minimizeApp('explorer')">最小化</button>
+                    <button onclick="maximizeApp('explorer')">最大化</button>
+                    <button onclick="closeApp('explorer')">閉じる</button>
                 </div>
             </div>
-            <p>AIアプリケーションの内容がここに表示されます。</p>
+            <p>ファイルとフォルダを表示するエクスプローラーです。</p>
         </div>
 
-        <!-- Time App -->
-        <div id="time" class="app">
+        <!-- Control Panel App -->
+        <div id="controlPanel" class="app">
             <div class="window-header">
-                <span>時間</span>
+                <span>コントロールパネル</span>
                 <div class="window-controls">
-                    <button onclick="minimizeApp('time')">最小化</button>
-                    <button onclick="maximizeApp('time')">最大化</button>
-                    <button onclick="closeApp('time')">閉じる</button>
+                    <button onclick="minimizeApp('controlPanel')">最小化</button>
+                    <button onclick="maximizeApp('controlPanel')">最大化</button>
+                    <button onclick="closeApp('controlPanel')">閉じる</button>
                 </div>
             </div>
-            <p id="timeDisplay"></p>
+            <p>設定や管理ツールを表示するコントロールパネルです。</p>
         </div>
 
-        <!-- Version Info App -->
-        <div id="version-info" class="app">
+        <!-- Clock App -->
+        <div id="clock" class="app">
             <div class="window-header">
-                <span>バージョン情報</span>
+                <span>時計</span>
                 <div class="window-controls">
-                    <button onclick="minimizeApp('version-info')">最小化</button>
-                    <button onclick="maximizeApp('version-info')">最大化</button>
-                    <button onclick="closeApp('version-info')">閉じる</button>
+                    <button onclick="minimizeApp('clock')">最小化</button>
+                    <button onclick="maximizeApp('clock')">最大化</button>
+                    <button onclick="closeApp('clock')">閉じる</button>
                 </div>
             </div>
-            <p>Windows Queen</p>
-            <p>Version: 2517</p>
-            <p>Developed by: Your Company</p>
+            <p>現在の時刻を表示する時計アプリです。</p>
+        </div>
+
+        <!-- Calculator App -->
+        <div id="calculator" class="app">
+            <div class="window-header">
+                <span>電卓</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('calculator')">最小化</button>
+                    <button onclick="maximizeApp('calculator')">最大化</button>
+                    <button onclick="closeApp('calculator')">閉じる</button>
+                </div>
+            </div>
+            <p>計算を行う電卓アプリです。</p>
+        </div>
+
+        <!-- Camera App -->
+        <div id="camera" class="app">
+            <div class="window-header">
+                <span>カメラ</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('camera')">最小化</button>
+                    <button onclick="maximizeApp('camera')">最大化</button>
+                    <button onclick="closeApp('camera')">閉じる</button>
+                </div>
+            </div>
+            <p>カメラで撮影するアプリです。</p>
+        </div>
+
+        <!-- Games App -->
+        <div id="games" class="app">
+            <div class="window-header">
+                <span>ゲーム</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('games')">最小化</button>
+                    <button onclick="maximizeApp('games')">最大化</button>
+                    <button onclick="closeApp('games')">閉じる</button>
+                </div>
+            </div>
+            <p>ゲームアプリケーションがここに表示されます。</p>
+        </div>
+
+        <!-- Settings App -->
+        <div id="settings" class="app">
+            <div class="window-header">
+                <span>設定</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('settings')">最小化</button>
+                    <button onclick="maximizeApp('settings')">最大化</button>
+                    <button onclick="closeApp('settings')">閉じる</button>
+                </div>
+            </div>
+            <p>設定やオプションを変更するアプリです。</p>
+        </div>
+
+        <!-- Help App -->
+        <div id="help" class="app">
+            <div class="window-header">
+                <span>ヘルプ</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('help')">最小化</button>
+                    <button onclick="maximizeApp('help')">最大化</button>
+                    <button onclick="closeApp('help')">閉じる</button>
+                </div>
+            </div>
+            <p>ヘルプやサポート情報が表示されます。</p>
+        </div>
+
+        <!-- Updates App -->
+        <div id="updates" class="app">
+            <div class="window-header">
+                <span>アップデート</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('updates')">最小化</button>
+                    <button onclick="maximizeApp('updates')">最大化</button>
+                    <button onclick="closeApp('updates')">閉じる</button>
+                </div>
+            </div>
+            <p>アップデート情報が表示されます。</p>
         </div>
     </main>
     <script>
-        // スタートボタンとアプリの操作スクリプト
         document.getElementById('start-button').addEventListener('click', function() {
-            document.getElementById('start-menu').style.display = 
-                document.getElementById('start-menu').style.display === 'block' ? 'none' : 'block';
+            var startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'none' ? 'block' : 'none';
         });
 
         function openApp(appId) {
-            document.querySelectorAll('.app').forEach(app => {
-                app.style.display = 'none';
-            });
-            document.getElementById(appId).style.display = 'block';
-        }
-
-        function minimizeApp(appId) {
-            document.getElementById(appId).style.display = 'none';
-        }
-
-        function maximizeApp(appId) {
-            document.getElementById(appId).style.width = '100%';
-            document.getElementById(appId).style.height = '100%';
+            var app = document.getElementById(appId);
+            app.style.display = 'block';
         }
 
         function closeApp(appId) {
-            document.getElementById(appId).style.display = 'none';
+            var app = document.getElementById(appId);
+            app.style.display = 'none';
         }
 
-        window.onload = function() {
-            document.getElementById('startup-sound').play();
-            setInterval(() => {
-                document.getElementById('timeDisplay').innerText = new Date().toLocaleTimeString();
-            }, 1000);
-        };
-
-        function saveDrawing() {
-            const canvas = document.getElementById('paintCanvas');
-            const link = document.createElement('a');
-            link.download = 'drawing.png';
-            link.href = canvas.toDataURL();
-            link.click();
+        function minimizeApp(appId) {
+            var app = document.getElementById(appId);
+            app.style.display = 'none';
         }
 
-        function takePhoto() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('cameraCanvas');
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        function maximizeApp(appId) {
+            var app = document.getElementById(appId);
+            app.style.width = '100%';
+            app.style.height = '100%';
+            app.style.top = '0';
+            app.style.left = '0';
         }
 
-        function savePhoto() {
-            const canvas = document.getElementById('cameraCanvas');
-            const link = document.createElement('a');
-            link.download = 'photo.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        }
-
-        function navigateBrowser() {
-            const url = document.getElementById('browserUrl').value;
-            document.getElementById('browserIframe').src = url;
-        }
-
-        function loadMedia() {
-            const fileInput = document.getElementById('mediaFileInput');
-            const file = fileInput.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                document.getElementById('mediaPlayerVideo').src = url;
-            }
-        }
-
+        // Timer App Functionality
+        var timer;
         function startTimer() {
-            const input = document.getElementById('timerInput');
-            const display = document.getElementById('timerDisplay');
-            let time = parseInt(input.value, 10);
-            if (isNaN(time)) return;
-            const interval = setInterval(() => {
-                if (time <= 0) {
-                    clearInterval(interval);
+            var timerInput = document.getElementById('timerInput').value;
+            var timerDisplay = document.getElementById('timerDisplay');
+            timerDisplay.textContent = timerInput;
+            timer = setInterval(function() {
+                timerInput--;
+                timerDisplay.textContent = timerInput;
+                if (timerInput <= 0) {
+                    clearInterval(timer);
+                    alert('タイマーが終了しました！');
                 }
-                display.textContent = time;
-                time--;
             }, 1000);
         }
 
         function stopTimer() {
-            // Stop the timer functionality here.
+            clearInterval(timer);
+        }
+
+        // Play startup sound
+        window.onload = function() {
+            var audio = new Audio('myedit_ai_sfx_0723141056.mp3');
+            audio.play();
         }
     </script>
 </body>
