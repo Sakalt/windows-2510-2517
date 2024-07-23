@@ -116,6 +116,28 @@
         #start-menu ul li:hover {
             background-color: #eee;
         }
+
+        /* Additional App Styles */
+        .app iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .app video {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #notepadText {
+            width: 100%;
+            height: 90%;
+        }
+
+        #timerDisplay {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -129,6 +151,16 @@
                 <li onclick="openApp('browser')">ブラウザ</li>
                 <li onclick="openApp('mediaplayer')">メディアプレイヤー</li>
                 <li onclick="openApp('timer')">タイマー</li>
+                <li onclick="openApp('explorer')">エクスプローラー</li>
+                <li onclick="openApp('controlPanel')">コントロールパネル</li>
+                <li onclick="openApp('clock')">時計</li>
+                <li onclick="openApp('paint')">ペイント</li>
+                <li onclick="openApp('calculator')">電卓</li>
+                <li onclick="openApp('camera')">カメラ</li>
+                <li onclick="openApp('games')">ゲーム</li>
+                <li onclick="openApp('settings')">設定</li>
+                <li onclick="openApp('help')">ヘルプ</li>
+                <li onclick="openApp('updates')">アップデート</li>
             </ul>
         </div>
     </header>
@@ -156,7 +188,7 @@
                     <button onclick="closeApp('notepad')">閉じる</button>
                 </div>
             </div>
-            <textarea id="notepadText" style="width: 100%; height: 90%;"></textarea>
+            <textarea id="notepadText"></textarea>
         </div>
 
         <!-- Browser App -->
@@ -169,7 +201,7 @@
                     <button onclick="closeApp('browser')">閉じる</button>
                 </div>
             </div>
-            <iframe id="browserIframe" src="" width="100%" height="100%"></iframe>
+            <iframe id="browserIframe" src=""></iframe>
         </div>
 
         <!-- Media Player App -->
@@ -201,6 +233,123 @@
             <button onclick="startTimer()">スタート</button>
             <button onclick="stopTimer()">ストップ</button>
             <div id="timerDisplay"></div>
+        </div>
+
+        <!-- Explorer App -->
+        <div id="explorer" class="app">
+            <div class="window-header">
+                <span>エクスプローラー</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('explorer')">最小化</button>
+                    <button onclick="maximizeApp('explorer')">最大化</button>
+                    <button onclick="closeApp('explorer')">閉じる</button>
+                </div>
+            </div>
+            <p>ファイルとフォルダを表示するエクスプローラーです。</p>
+        </div>
+
+        <!-- Control Panel App -->
+        <div id="controlPanel" class="app">
+            <div class="window-header">
+                <span>コントロールパネル</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('controlPanel')">最小化</button>
+                    <button onclick="maximizeApp('controlPanel')">最大化</button>
+                    <button onclick="closeApp('controlPanel')">閉じる</button>
+                </div>
+            </div>
+            <p>設定や管理ツールを表示するコントロールパネルです。</p>
+        </div>
+
+        <!-- Clock App -->
+        <div id="clock" class="app">
+            <div class="window-header">
+                <span>時計</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('clock')">最小化</button>
+                    <button onclick="maximizeApp('clock')">最大化</button>
+                    <button onclick="closeApp('clock')">閉じる</button>
+                </div>
+            </div>
+            <p>現在の時刻を表示する時計アプリです。</p>
+        </div>
+
+        <!-- Calculator App -->
+        <div id="calculator" class="app">
+            <div class="window-header">
+                <span>電卓</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('calculator')">最小化</button>
+                    <button onclick="maximizeApp('calculator')">最大化</button>
+                    <button onclick="closeApp('calculator')">閉じる</button>
+                </div>
+            </div>
+            <p>計算を行う電卓アプリです。</p>
+        </div>
+
+        <!-- Camera App -->
+        <div id="camera" class="app">
+            <div class="window-header">
+                <span>カメラ</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('camera')">最小化</button>
+                    <button onclick="maximizeApp('camera')">最大化</button>
+                    <button onclick="closeApp('camera')">閉じる</button>
+                </div>
+            </div>
+            <p>カメラで撮影するアプリです。</p>
+        </div>
+
+        <!-- Games App -->
+        <div id="games" class="app">
+            <div class="window-header">
+                <span>ゲーム</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('games')">最小化</button>
+                    <button onclick="maximizeApp('games')">最大化</button>
+                    <button onclick="closeApp('games')">閉じる</button>
+                </div>
+            </div>
+            <p>ゲームアプリケーションがここに表示されます。</p>
+        </div>
+
+        <!-- Settings App -->
+        <div id="settings" class="app">
+            <div class="window-header">
+                <span>設定</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('settings')">最小化</button>
+                    <button onclick="maximizeApp('settings')">最大化</button>
+                    <button onclick="closeApp('settings')">閉じる</button>
+                </div>
+            </div>
+            <p>設定やオプションを変更するアプリです。</p>
+        </div>
+
+        <!-- Help App -->
+        <div id="help" class="app">
+            <div class="window-header">
+                <span>ヘルプ</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('help')">最小化</button>
+                    <button onclick="maximizeApp('help')">最大化</button>
+                    <button onclick="closeApp('help')">閉じる</button>
+                </div>
+            </div>
+            <p>ヘルプやサポート情報が表示されます。</p>
+        </div>
+
+        <!-- Updates App -->
+        <div id="updates" class="app">
+            <div class="window-header">
+                <span>アップデート</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('updates')">最小化</button>
+                    <button onclick="maximizeApp('updates')">最大化</button>
+                    <button onclick="closeApp('updates')">閉じる</button>
+                </div>
+            </div>
+            <p>アップデート情報が表示されます。</p>
         </div>
     </main>
     <script>
