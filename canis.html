@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Canis 2512</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('canismajor.jpg') no-repeat center center fixed;
+            background-size: cover; /* Adjust background size */
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #003B6F; /* Dark blue background */
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            background-color: #004B87; /* Slightly lighter blue */
+        }
+
+        nav ul li {
+            margin: 0;
+            padding: 10px 20px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #start-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #start-menu ul li {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #start-menu ul li:hover {
+            background-color: #eee;
+        }
+
+        .app {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            width: 800px;
+            height: 600px;
+            overflow: auto;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .app h2 {
+            margin-top: 0;
+        }
+
+        .app .window-header {
+            background-color: #003B6F;
+            color: #fff;
+            padding: 5px;
+            cursor: move;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app .window-header button {
+            margin-left: 5px;
+            padding: 5px;
+            color: #fff;
+            border: none;
+            background: #004B87;
+            cursor: pointer;
+        }
+
+        .app .window-header button:hover {
+            background: #003B6F;
+        }
+
+        #paintCanvas {
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+        }
+
+        #camera {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        #camera video {
+            border: 1px solid #ccc;
+        }
+
+        #media-player input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        #media-player audio {
+            width: 100%;
+        }
+
+        #browser input[type="text"] {
+            width: calc(100% - 80px);
+            padding: 10px;
+        }
+
+        #browser button {
+            padding: 10px;
+        }
+
+        #lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        #lock-screen input {
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .minimized {
+            width: 200px;
+            height: 150px;
+            position: absolute;
+        }
+
+        .maximized {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .transparent {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <audio id="startup-sound" src="myedit_ai_sfx_0723132129.mp3" preload="auto"></audio>
+    <header>
+        <h1>Windows Canis 2512</h1>
+        <button id="start-button">スタート</button>
+        <div id="start-menu">
+            <ul>
+                <li onclick="openApp('paint')">ペイント</li>
+                <li onclick="openApp('camera')">カメラ</li>
+                <li onclick="openApp('image-viewer')">画像表示</li>
+                <li onclick="openApp('media-player')">メディアプレイヤー</li>
+                <li onclick="openApp('browser')">ブラウザ</li>
+                <li onclick="openApp('notepad')">ノートパッド</li>
+            </ul>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#home">ホーム</a></li>
+                <li><a href="#apps">アプリ</a></li>
+                <li><a href="#settings">設定</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="home">
+            <h2>ホーム</h2>
+            <p>ようこそ、Windows Canis 2512へ。</p>
+        </section>
+        <section id="apps">
+            <h2>アプリ</h2>
+            <div id="paint" class="app">
+                <div class="window-header">
+                    <span>ペイント</span>
+                    <div>
+                        <button onclick="minimizeApp('paint')">最小化</button>
+                        <button onclick="maximizeApp('paint')">最大化</button>
+                        <button onclick="closeApp('paint')">閉じる</button>
+                    </div>
+                </div>
+                <label for="colorPicker">色:</label>
+                <input type="color" id="colorPicker" value="#000000">
+                <br>
+                <label for="shapeSelect">図形:</label>
+                <select id="shapeSelect">
+                    <option value="line">ライン</option>
+                    <option value="circle">円</option>
+                    <option value="rectangle">四角形</option>
+                    <option value="point">点</option>
+                    <option value="arc">弧</option>
+                </select>
+                <br>
+                <button onclick="clearCanvas()">キャンバスクリア</button>
+                <button onclick="exportImage()">画像として保存</button>
+                <br>
+                <canvas id="paintCanvas" width="100%" height="400px"></canvas>
+            </div>
+            <div id="camera" class="app">
+                <div class="window-header">
+                    <span>カメラ</span>
+                    <div>
+                        <button onclick="minimizeApp('camera')">最小化</button>
+                        <button onclick="maximizeApp('camera')">最大化</button>
+                        <button onclick="closeApp('camera')">閉じる</button>
+                    </div>
+                </div>
+                <video id="video" autoplay></video>
+                <button onclick="capturePhoto()">写真を撮る</button>
+                <canvas id="photoCanvas" width="640" height="480"></canvas>
+            </div>
+            <div id="media-player" class="app">
+                <div class="window-header">
+                    <span>メディアプレイヤー</span>
+                    <div>
+                        <button onclick="minimizeApp('media-player')">最小化</button>
+                        <button onclick="maximizeApp('media-player')">最大化</button>
+                        <button onclick="closeApp('media-player')">閉じる</button>
+                    </div>
+                </div>
+                <input type="file" id="mediaFile" accept="audio/*">
+                <audio id="audioPlayer" controls></audio>
+            </div>
+            <div id="browser" class="app">
+                <div class="window-header">
+                    <span>ブラウザ</span>
+                    <div>
+                        <button onclick="minimizeApp('browser')">最小化</button>
+                        <button onclick="maximizeApp('browser')">最大化</button>
+                        <button onclick="closeApp('browser')">閉じる</button>
+                    </div>
+                </div>
+                <input type="text" id="url" placeholder="URLを入力">
+                <button onclick="loadUrl()">ロード</button>
+                <iframe id="browserFrame" style="width:100%; height:500px;"></iframe>
+            </div>
+            <div id="notepad" class="app">
+                <div class="window-header">
+                    <span>ノートパッド</span>
+                    <div>
+                        <button onclick="minimizeApp('notepad')">最小化</button>
+                        <button onclick="maximizeApp('notepad')">最大化</button>
+                        <button onclick="closeApp('notepad')">閉じる</button>
+                    </div>
+                </div>
+                <textarea id="notepadContent" placeholder="メモを入力..."></textarea>
+            </div>
+        </section>
+    </main>
+    <div id="lock-screen">
+        <div>
+            <h2>ロック画面</h2>
+            <input type="password" placeholder="パスワードを入力">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('startup-sound').play();
+        });
+
+        function openApp(appId) {
+            closeAllApps();
+            document.getElementById(appId).style.display = 'block';
+        }
+
+        function closeApp(appId) {
+            document.getElementById(appId).style.display = 'none';
+        }
+
+        function minimizeApp(appId) {
+            const app = document.getElementById(appId);
+            app.classList.add('minimized');
+            app.classList.remove('maximized');
+        }
+
+        function maximizeApp(appId) {
+            const app = document.getElementById(appId);
+            app.classList.add('maximized');
+            app.classList.remove('minimized');
+        }
+
+        function clearCanvas() {
+            const canvas = document.getElementById('paintCanvas');
+            const context = canvas.getContext('2d');
+            context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function exportImage() {
+            const canvas = document.getElementById('paintCanvas');
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'paint.png';
+            link.click();
+        }
+
+        function capturePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('photoCanvas');
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
+
+        function loadUrl() {
+            const url = document.getElementById('url').value;
+            document.getElementById('browserFrame').src = url;
+        }
+
+        function closeAllApps() {
+            document.querySelectorAll('.app').forEach(app => app.style.display = 'none');
+        }
+
+        document.getElementById('start-button').addEventListener('click', () => {
+            const menu = document.getElementById('start-menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.getElementById('lock-screen').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('lock-screen')) {
+                document.getElementById('lock-screen').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
