@@ -15,42 +15,14 @@
         }
 
         header {
-            background-color: #003B6F;
+            background-color: rgba(0, 0, 0, 0.5);
             color: #fff;
             padding: 10px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            background-color: #004B87;
-        }
-
-        nav ul li {
-            margin: 0;
-            padding: 10px 20px;
-        }
-
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-        }
-
-        main {
-            padding: 20px;
-        }
-
-        button {
-            padding: 10px;
-            margin: 5px;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
         }
 
         #start-menu {
@@ -94,31 +66,15 @@
             transition: all 0.3s ease;
         }
 
-        .app h2 {
-            margin-top: 0;
-        }
-
         .app .window-header {
-            background-color: #003B6F;
+            background-color: rgba(0, 0, 0, 0.5);
             color: #fff;
             padding: 5px;
             cursor: move;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .app .window-header button {
-            margin-left: 5px;
-            padding: 5px;
-            color: #fff;
-            border: none;
-            background: #004B87;
-            cursor: pointer;
-        }
-
-        .app .window-header button:hover {
-            background: #003B6F;
+            border-bottom: 1px solid #fff;
         }
 
         .app .window-controls {
@@ -127,27 +83,15 @@
 
         .app .window-controls button {
             margin-left: 5px;
+            padding: 5px;
+            color: #fff;
+            border: none;
+            background: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
         }
 
-        #camera {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-
-        #camera video {
-            border: 1px solid #ccc;
-        }
-
-        #cameraCanvas {
-            display: none;
-        }
-
-        #paint {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+        .app .window-controls button:hover {
+            background: rgba(0, 0, 0, 0.7);
         }
 
         #paintCanvas {
@@ -156,11 +100,51 @@
             cursor: crosshair;
         }
 
-        /* Additional styles for other apps */
+        #cameraCanvas {
+            display: none;
+        }
+
+        #browser-tabs {
+            display: flex;
+            background-color: #f1f1f1;
+            padding: 5px;
+        }
+
+        #browser-tabs button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+
+        #browser-tabs button.active {
+            background-color: #ddd;
+        }
+
+        #browser-navigation {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        #browser-navigation input {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #browser-navigation button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
-    <audio id="startup-sound" src="siriusstart.wav" preload="auto"></audio>
+    <audio id="startup-sound" src="myedit_ai_sfx_0723132129.mp3" preload="auto"></audio>
     <header>
         <h1>Windows Sirius</h1>
         <button id="start-button">スタート</button>
@@ -190,7 +174,6 @@
                 </div>
             </div>
             <canvas id="paintCanvas" width="800" height="600"></canvas>
-            <!-- Paint tools here -->
         </div>
 
         <!-- Camera App -->
@@ -218,7 +201,7 @@
                     <button onclick="closeApp('notepad')">閉じる</button>
                 </div>
             </div>
-            <textarea id="notepadTextarea" rows="25" cols="100"></textarea>
+            <textarea rows="20" cols="80"></textarea>
         </div>
 
         <!-- Browser App -->
@@ -231,10 +214,17 @@
                     <button onclick="closeApp('browser')">閉じる</button>
                 </div>
             </div>
-            <iframe id="browserFrame" src="about:blank" style="width:100%; height:500px;"></iframe>
+            <div id="browser-navigation">
+                <button onclick="goBack()">戻る</button>
+                <button onclick="goForward()">進む</button>
+                <input type="text" id="url" placeholder="URLを入力">
+                <button onclick="goToUrl()">移動</button>
+                <button onclick="newTab()">新しいタブ</button>
+            </div>
+            <iframe id="browserIframe" style="width: 100%; height: 500px; border: none;"></iframe>
         </div>
 
-        <!-- MediaPlayer App -->
+        <!-- Media Player App -->
         <div id="mediaplayer" class="app">
             <div class="window-header">
                 <span>メディアプレイヤー</span>
@@ -244,7 +234,8 @@
                     <button onclick="closeApp('mediaplayer')">閉じる</button>
                 </div>
             </div>
-            <audio id="mediaPlayer" controls></audio>
+            <input type="file" id="mediaFile" accept="audio/*,video/*">
+            <video id="mediaPlayer" controls></video>
         </div>
 
         <!-- Timer App -->
@@ -257,8 +248,9 @@
                     <button onclick="closeApp('timer')">閉じる</button>
                 </div>
             </div>
-            <input type="text" id="timerInput" placeholder="時間を入力">
+            <input type="number" id="timerInput" placeholder="秒数を入力">
             <button onclick="startTimer()">スタート</button>
+            <button onclick="stopTimer()">ストップ</button>
             <div id="timerDisplay"></div>
         </div>
 
@@ -272,9 +264,7 @@
                     <button onclick="closeApp('ai')">閉じる</button>
                 </div>
             </div>
-            <input type="text" id="aiInput" placeholder="質問を入力">
-            <button onclick="askAI()">質問する</button>
-            <div id="aiResponse"></div>
+            <div>AI アプリケーションの内容を表示</div>
         </div>
 
         <!-- Time App -->
@@ -300,20 +290,99 @@
                     <button onclick="closeApp('version-info')">閉じる</button>
                 </div>
             </div>
-            <div id="versionDetails"></div>
+            <div>バージョン情報を表示</div>
         </div>
     </main>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('startup-sound').play();
-            setInterval(() => {
-                document.getElementById('currentTime').textContent = new Date().toLocaleTimeString();
-            }, 1000);
+        // ペイントアプリ
+        var paintCanvas = document.getElementById('paintCanvas');
+        var paintCtx = paintCanvas.getContext('2d');
+        var isPainting = false;
+        paintCanvas.addEventListener('mousedown', () => isPainting = true);
+        paintCanvas.addEventListener('mouseup', () => isPainting = false);
+        paintCanvas.addEventListener('mousemove', (e) => {
+            if (isPainting) {
+                paintCtx.lineTo(e.clientX - paintCanvas.offsetLeft, e.clientY - paintCanvas.offsetTop);
+                paintCtx.stroke();
+            }
         });
 
+        // カメラアプリ
+        var video = document.getElementById('video');
+        var cameraCanvas = document.getElementById('cameraCanvas');
+        var cameraCtx = cameraCanvas.getContext('2d');
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream)
+            .catch(err => console.error(err));
+        
+        function capturePhoto() {
+            cameraCtx.drawImage(video, 0, 0, cameraCanvas.width, cameraCanvas.height);
+            var imageData = cameraCanvas.toDataURL('image/png');
+            var link = document.createElement('a');
+            link.href = imageData;
+            link.download = 'photo.png';
+            link.click();
+        }
+
+        // ブラウザアプリ
+        function newTab() {
+            var browserIframe = document.getElementById('browserIframe');
+            browserIframe.src = 'about:blank';
+        }
+
+        function goBack() {
+            var browserIframe = document.getElementById('browserIframe').contentWindow.history;
+            if (browserIframe.length > 0) {
+                browserIframe.back();
+            }
+        }
+
+        function goForward() {
+            var browserIframe = document.getElementById('browserIframe').contentWindow.history;
+            if (browserIframe.length > 0) {
+                browserIframe.forward();
+            }
+        }
+
+        function goToUrl() {
+            var url = document.getElementById('url').value;
+            document.getElementById('browserIframe').src = url;
+        }
+
+        // タイマーアプリ
+        var timerInterval;
+        function startTimer() {
+            var input = document.getElementById('timerInput').value;
+            var display = document.getElementById('timerDisplay');
+            var seconds = parseInt(input);
+            timerInterval = setInterval(() => {
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    display.textContent = 'タイマー終了';
+                } else {
+                    display.textContent = `${seconds--} 秒`;
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timerDisplay').textContent = 'タイマー停止';
+        }
+
+        // 現在の時刻
+        function updateTime() {
+            var now = new Date();
+            var timeDisplay = document.getElementById('currentTime');
+            timeDisplay.textContent = now.toLocaleTimeString();
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // アプリのオープン/クローズ/最大化/最小化
         function openApp(appId) {
-            closeAllApps();
+            document.querySelectorAll('.app').forEach(app => app.style.display = 'none');
             document.getElementById(appId).style.display = 'block';
         }
 
@@ -322,60 +391,24 @@
         }
 
         function minimizeApp(appId) {
-            const app = document.getElementById(appId);
-            app.style.width = '300px';
-            app.style.height = '200px';
-            app.style.top = 'calc(100% - 210px)';
-            app.style.left = 'calc(100% - 310px)';
+            var app = document.getElementById(appId);
+            app.style.height = '40px';
+            app.style.overflow = 'hidden';
         }
 
         function maximizeApp(appId) {
-            const app = document.getElementById(appId);
-            app.style.width = '800px';
+            var app = document.getElementById(appId);
             app.style.height = '600px';
-            app.style.top = '100px';
-            app.style.left = '50px';
-        }
-
-        function capturePhoto() {
-            const video = document.getElementById('video');
-            const canvas = document.getElementById('cameraCanvas');
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        }
-
-        function startTimer() {
-            const input = document.getElementById('timerInput').value;
-            const display = document.getElementById('timerDisplay');
-            const endTime = new Date(new Date().getTime() + parseInt(input) * 1000);
-            const interval = setInterval(() => {
-                const now = new Date();
-                const remaining = endTime - now;
-                if (remaining <= 0) {
-                    clearInterval(interval);
-                    display.textContent = 'タイマー終了';
-                } else {
-                    display.textContent = `残り: ${Math.floor(remaining / 1000)}秒`;
-                }
-            }, 1000);
-        }
-
-        function askAI() {
-            const input = document.getElementById('aiInput').value;
-            const response = `AIの回答: "${input}"`;
-            document.getElementById('aiResponse').textContent = response;
-        }
-
-        function closeAllApps() {
-            document.querySelectorAll('.app').forEach(app => app.style.display = 'none');
+            app.style.overflow = 'auto';
         }
 
         document.getElementById('start-button').addEventListener('click', () => {
-            const menu = document.getElementById('start-menu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            var startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'none' ? 'block' : 'none';
         });
+
+        // スタートアップサウンド
+        document.getElementById('startup-sound').play();
     </script>
 </body>
 </html>
