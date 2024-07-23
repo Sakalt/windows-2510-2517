@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows NewPeriod2.0</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        .window {
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background-color: #333;
+            position: absolute;
+            display: block;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
+        }
+
+        .window .corner-button {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .window .corner-button.minimize {
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(145deg, #4d4d4d, #1a1a1a);
+        }
+
+        .window .corner-button.maximize {
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(145deg, #4d4d4d, #1a1a1a);
+        }
+
+        .window .corner-button.close {
+            bottom: 10px;
+            right: 10px;
+            background: linear-gradient(145deg, #b94d4d, #7a3e3e);
+        }
+
+        .window .corner-button:hover {
+            background: linear-gradient(145deg, #666, #333);
+        }
+
+        .central-circle {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background-color: #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            cursor: move;
+        }
+
+        .app-button {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #666;
+            color: #fff;
+            text-align: center;
+            line-height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .app-button:hover {
+            background-color: #999;
+        }
+
+        #browser { top: 10px; left: 50%; transform: translate(-50%, 0); }
+        #map { top: 50%; right: 10px; transform: translate(0, -50%); }
+        #settings { bottom: 10px; left: 50%; transform: translate(-50%, 0); }
+        #timer { top: 50%; left: 10px; transform: translate(0, -50%); }
+        #paint { bottom: 50px; left: 50%; transform: translate(-50%, 50px); }
+        #minesweeper { bottom: 10px; right: 10px; }
+        #calculator { bottom: 10px; left: 10px; }
+
+        .app-content {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .app-content.active {
+            display: block;
+        }
+
+        #paint-canvas {
+            border: 1px solid #666;
+            background-color: #fff;
+        }
+
+        #paint-tools {
+            margin-top: 10px;
+        }
+
+        #google-map {
+            width: 100%;
+            height: 100%;
+        }
+
+        #timer-content input {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        .side-app {
+            position: absolute;
+            right: 0;
+            width: 200px;
+            height: 100%;
+            background: #222;
+            color: #fff;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            box-sizing: border-box;
+            z-index: 999;
+        }
+
+        .side-app h2 {
+            margin: 0;
+            padding-bottom: 10px;
+        }
+
+        .side-app .side-app-content {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .side-app .side-app-content.active {
+            display: block;
+        }
+
+        .side-app button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #444;
+            color: #fff;
+            border: none;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .side-app button:hover {
+            background: #666;
+        }
+
+        /* マインスイーパーのスタイル */
+        .minesweeper-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 30px);
+            grid-gap: 1px;
+            margin: 20px auto;
+            width: fit-content;
+        }
+
+        .minesweeper-cell {
+            width: 30px;
+            height: 30px;
+            background: #ddd;
+            border: 1px solid #bbb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .minesweeper-cell.open {
+            background: #eee;
+            cursor: default;
+        }
+
+        .minesweeper-cell.mine {
+            background: red;
+            color: white;
+        }
+
+        .minesweeper-cell.flag {
+            background: yellow;
+        }
+
+        /* 電卓のスタイル */
+        #calculator-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #calculator-content input {
+            width: 100px;
+            padding: 10px;
+            text-align: right;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        #calculator-content button {
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #calculator-content button.operator {
+            background-color: #444;
+        }
+
+        #calculator-content button.operator:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="window" id="main-window">
+            <div class="corner-button minimize">－</div>
+            <div class="corner-button maximize">□</div>
+            <div class="corner-button close">×</div>
+            <div class="central-circle">
+                <div class="app-button" id="browser">ブラウザ</div>
+                <div class="app-button" id="map">Googleマップ</div>
+                <div class="app-button" id="settings">設定</div>
+                <div class="app-button" id="timer">タイマー</div>
+                <div class="app-button" id="paint">ペイント</div>
+                <div class="app-button" id="minesweeper">マインスイーパー</div>
+                <div class="app-button" id="calculator">電卓</div>
+            </div>
+        </div>
+    </div>
+    <div class="app-content" id="browser-content">
+        <h2>ブラウザ</h2>
+        <iframe src="https://www.example.com" width="100%" height="90%" style="border: none;"></iframe>
+    </div>
+    <div class="app-content" id="map-content">
+        <h2>Googleマップ</h2>
+        <iframe id="google-map" src="https://www.google.com/maps/embed" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <div class="app-content" id="settings-content">
+        <h2>設定</h2>
+        <p>ここでシステム設定を調整できます。</p>
+    </div>
+    <div class="app-content" id="timer-content">
+        <h2>タイマー</h2>
+        <input type="text" id="timer-input" placeholder="タイマーを設定">
+        <button id="start-timer">開始</button>
+        <p id="timer-display">00:00</p>
+    </div>
+    <div class="app-content" id="paint-content">
+        <h2>ペイント</h2>
+        <canvas id="paint-canvas" width="300" height="300"></canvas>
+        <div id="paint-tools">
+            <input type="color" id="color-picker" value="#000000">
+            <button id="export">エクスポート</button>
+        </div>
+    </div>
+    <div class="app-content" id="minesweeper-content">
+        <h2>マインスイーパー</h2>
+        <div class="minesweeper-grid" id="minesweeper-grid">
+            <!-- マインスイーパーのセルをJavaScriptで生成します -->
+        </div>
+    </div>
+    <div class="app-content" id="calculator-content">
+        <h2>電卓</h2>
+        <input type="text" id="calculator-display" disabled>
+        <div>
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button class="operator">+</button>
+        </div>
+        <div>
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+            <button class="operator">-</button>
+        </div>
+        <div>
+            <button>7</button>
+            <button>8</button>
+            <button>9</button>
+            <button class="operator">*</button>
+        </div>
+        <div>
+            <button>0</button>
+            <button class="operator">/</button>
+            <button id="equal">=</button>
+        </div>
+    </div>
+    <div class="side-app" id="side-app">
+        <h2>サイドアプリ</h2>
+        <div class="side-app-content" id="notes-content">
+            <h3>メモ帳</h3>
+            <textarea rows="10" cols="20" placeholder="メモを書いてください..."></textarea>
+        </div>
+        <div class="side-app-content" id="weather-content">
+            <h3>天気予報</h3>
+            <p>ここで天気予報を表示します。</p>
+        </div>
+        <div class="side-app-content" id="calendar-content">
+            <h3>カレンダー</h3>
+            <p>ここでカレンダーを表示します。</p>
+        </div>
+        <!-- 追加のサイドアプリボタン -->
+        <button data-target="notes-content">メモ帳</button>
+        <button data-target="weather-content">天気予報</button>
+        <button data-target="calendar-content">カレンダー</button>
+    </div>
+
+    <script>
+        // アプリの表示/非表示
+        document.querySelectorAll('.app-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.app-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(button.id + '-content').classList.add('active');
+            });
+        });
+
+        // サイドアプリの表示
+        document.querySelectorAll('.side-app button').forEach(button => {
+            button.addEventListener('click', () => {
+                const target = button.getAttribute('data-target');
+                document.querySelectorAll('.side-app-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(target).classList.add('active');
+            });
+        });
+
+        // 電卓の機能
+        const display = document.getElementById('calculator-display');
+        let currentInput = '';
+        let operator = '';
+        document.querySelectorAll('#calculator-content button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.id === 'equal') {
+                    display.value = eval(currentInput);
+                    currentInput = display.value;
+                } else {
+                    if (button.classList.contains('operator')) {
+                        operator = button.textContent;
+                    }
+                    currentInput += button.textContent;
+                    display.value = currentInput;
+                }
+            });
+        });
+
+        // マインスイーパーのセル生成
+        function createMinesweeperGrid() {
+            const grid = document.getElementById('minesweeper-grid');
+            for (let i = 0; i < 100; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'minesweeper-cell';
+                cell.addEventListener('click', () => {
+                    cell.classList.add('open');
+                    // セルが地雷かどうかの判定を追加することができます
+                });
+                grid.appendChild(cell);
+            }
+        }
+        createMinesweeperGrid();
+    </script>
+</body>
+</html>
