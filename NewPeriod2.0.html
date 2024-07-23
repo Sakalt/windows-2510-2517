@@ -145,6 +145,47 @@
         #timer-display {
             font-size: 24px;
         }
+
+        #browser-content iframe {
+            width: 100%;
+            height: 80%;
+            border: none;
+        }
+
+        #store-content, #install-content {
+            display: none;
+        }
+
+        #store-content .extension {
+            background: #e0e0e0;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        #install-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #install-progress {
+            width: 100%;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        #install-bar {
+            height: 30px;
+            background: #0078d7;
+            width: 0;
+            border-radius: 5px;
+            position: absolute;
+        }
     </style>
 </head>
 <body>
@@ -172,7 +213,10 @@
 
         <div class="app-content" id="browser-content">
             <h2>ブラウザ</h2>
-            <iframe src="https://www.example.com" width="100%" height="90%" style="border: none;"></iframe>
+            <input type="text" id="search-bar" placeholder="検索...">
+            <button id="search-btn">検索</button>
+            <iframe id="browser-frame" src="https://www.bing.com" frameborder="0"></iframe>
+            <button id="open-store-btn">拡張機能ストア</button>
         </div>
 
         <div class="app-content" id="map-content">
@@ -232,45 +276,67 @@
         <button data-target="notes-content">メモ帳</button>
         <button data-target="weather-content">天気予報</button>
         <button data-target="calendar-content">カレンダー</button>
-        <button data-target="calculator-content">電卓</button>
+        <button data-target="mail-content">メール</button>
+        <button data-target="calculator-side-content">電卓</button>
+        <button data-target="store-content">拡張機能ストア</button>
+        <button data-target="install-content">インストール</button>
+    </div>
 
-        <div class="side-app-content" id="notes-content">
-            <h3>メモ帳</h3>
-            <textarea rows="10" cols="20" placeholder="メモを書いてください..."></textarea>
-        </div>
+    <div class="side-app-content" id="notes-content">
+        <h2>メモ帳</h2>
+        <textarea rows="10" cols="30"></textarea>
+    </div>
 
-        <div class="side-app-content" id="weather-content">
-            <h3>天気予報</h3>
-            <p>ここで天気予報を表示します。</p>
-        </div>
+    <div class="side-app-content" id="weather-content">
+        <h2>天気予報</h2>
+        <p>天気予報の情報を表示します。</p>
+    </div>
 
-        <div class="side-app-content" id="calendar-content">
-            <h3>カレンダー</h3>
-            <p>ここでカレンダーを表示します。</p>
-        </div>
+    <div class="side-app-content" id="calendar-content">
+        <h2>カレンダー</h2>
+        <p>カレンダーの情報を表示します。</p>
+    </div>
 
-        <div class="side-app-content" id="calculator-content">
-            <h3>電卓</h3>
-            <input type="text" id="calc-display" readonly>
-            <div id="calc-buttons">
-                <button>1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>+</button>
-                <button>4</button>
-                <button>5</button>
-                <button>6</button>
-                <button>-</button>
-                <button>7</button>
-                <button>8</button>
-                <button>9</button>
-                <button>*</button>
-                <button>C</button>
-                <button>0</button>
-                <button>=</button>
-                <button>/</button>
-            </div>
+    <div class="side-app-content" id="mail-content">
+        <h2>メール</h2>
+        <p>メールの情報を表示します。</p>
+    </div>
+
+    <div class="side-app-content" id="calculator-side-content">
+        <h2>電卓</h2>
+        <input type="text" id="calc-display" readonly>
+        <div id="calc-buttons">
+            <button>1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>+</button>
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+            <button>-</button>
+            <button>7</button>
+            <button>8</button>
+            <button>9</button>
+            <button>*</button>
+            <button>C</button>
+            <button>0</button>
+            <button>=</button>
+            <button>/</button>
         </div>
+    </div>
+
+    <div class="side-app-content" id="store-content">
+        <h2>拡張機能ストア</h2>
+        <div class="extension" data-size="16">AI 拡張機能</div>
+        <div class="extension" data-size="25">翻訳 拡張機能</div>
+    </div>
+
+    <div class="side-app-content" id="install-content">
+        <h2>拡張機能のインストール</h2>
+        <div id="install-progress">
+            <div id="install-bar"></div>
+        </div>
+        <p id="install-status">インストール中...</p>
     </div>
 
     <script>
@@ -437,19 +503,34 @@
             }
         });
 
-        // ウィンドウの最小化、最大化、閉じる
-        document.getElementById('minimize-btn').addEventListener('click', () => {
-            document.getElementById('main-window').style.display = 'none';
+        // ブラウザ検索機能
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const query = document.getElementById('search-bar').value;
+            document.getElementById('browser-frame').src = `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
         });
 
-        document.getElementById('maximize-btn').addEventListener('click', () => {
-            document.getElementById('main-window').style.width = '100vw';
-            document.getElementById('main-window').style.height = '100vh';
+        // ストアの拡張機能インストール
+        document.querySelectorAll('#store-content .extension').forEach(extension => {
+            extension.addEventListener('click', () => {
+                const size = extension.dataset.size;
+                installExtension(size);
+            });
         });
 
-        document.getElementById('close-btn').addEventListener('click', () => {
-            document.getElementById('main-window').style.display = 'none';
-        });
+        function installExtension(size) {
+            const progressBar = document.getElementById('install-bar');
+            const statusText = document.getElementById('install-status');
+            let progress = 0;
+
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = `${progress}%`;
+                if (progress >= size) {
+                    clearInterval(interval);
+                    statusText.textContent = 'インストール完了';
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
