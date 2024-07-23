@@ -162,7 +162,6 @@
                 <div class="app-button" id="settings">設定</div>
                 <div class="app-button" id="timer">タイマー</div>
                 <div class="app-button" id="paint">ペイント</div>
-                <!-- 追加アプリのボタン -->
             </div>
         </div>
     </div>
@@ -195,6 +194,7 @@
     </div>
 
     <script>
+        // アプリケーションの表示・非表示の切り替え
         document.querySelectorAll('.app-button').forEach(button => {
             button.addEventListener('click', function() {
                 document.querySelectorAll('.app-content').forEach(content => {
@@ -204,13 +204,12 @@
             });
         });
 
-        // ドラッグ機能の追加
+        // ドラッグ機能
         const centralCircle = document.querySelector('.central-circle');
-        const dragArea = document.querySelector('.drag-area');
         let isDragging = false;
         let offsetX, offsetY;
 
-        dragArea.addEventListener('mousedown', (e) => {
+        document.querySelector('.drag-area').addEventListener('mousedown', (e) => {
             isDragging = true;
             offsetX = e.clientX - centralCircle.getBoundingClientRect().left;
             offsetY = e.clientY - centralCircle.getBoundingClientRect().top;
@@ -257,7 +256,7 @@
 
         document.querySelector('.corner-button.close').addEventListener('click', () => {
             if (confirm('本当に閉じますか？')) {
-                windowElement.style.display = 'none'; // 簡易的な閉じる処理
+                windowElement.style.display = 'none';
             }
         });
 
