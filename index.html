@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sirius OS 2510</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('wallpaper.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        header {
+            background-color: rgba(51, 51, 51, 0.8);
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #start-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #start-menu ul li {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #start-menu ul li:hover {
+            background-color: #ddd;
+        }
+
+        .app {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            width: 800px;
+            height: 600px;
+            overflow: auto;
+        }
+
+        .app h2 {
+            margin-top: 0;
+        }
+
+        #paintCanvas {
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+        }
+
+        #camera {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        #camera video {
+            border: 1px solid #ccc;
+        }
+
+        #media-player input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        #media-player audio {
+            width: 100%;
+        }
+
+        #browser input[type="text"] {
+            width: calc(100% - 80px);
+            padding: 10px;
+        }
+
+        #browser button {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <audio id="startup-sound" src="siriusstart.wav" preload="auto"></audio>
+    <header>
+        <h1>Sirius OS 2510</h1>
+        <button id="start-button">スタート</button>
+        <div id="start-menu">
+            <ul>
+                <li onclick="openApp('paint')">ペイント</li>
+                <li onclick="openApp('camera')">カメラ</li>
+                <li onclick="openApp('image-viewer')">画像表示</li>
+                <li onclick="openApp('media-player')">メディアプレイヤー</li>
+                <li onclick="openApp('browser')">ブラウザ</li>
+                <li onclick="openApp('notepad')">ノートパッド</li>
+            </ul>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#home">ホーム</a></li>
+                <li><a href="#apps">アプリ</a></li>
+                <li><a href="#settings">設定</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="home">
+            <h2>ホーム</h2>
+            <p>ようこそ、Sirius OS 2510へ。</p>
+        </section>
+        <section id="apps">
+            <h2>アプリ</h2>
+            <div id="paint" class="app">
+                <h2>ペイント</h2>
+                <label for="colorPicker">色:</label>
+                <input type="color" id="colorPicker" value="#000000">
+                <br>
+                <label for="shapeSelect">図形:</label>
+                <select id="shapeSelect">
+                    <option value="line">ライン</option>
+                    <option value="circle">円</option>
+                    <option value="rectangle">四角形</option>
+                    <option value="point">点</option>
+                    <option value="arc">弧</option>
+                </select>
+                <br>
+                <button onclick="clearCanvas()">キャンバスクリア</button>
+                <button onclick="exportImage()">画像として保存</button>
+                <br>
+                <canvas id="paintCanvas" width="100%" height="400px"></canvas>
+            </div>
+            <div id="camera" class="app">
+                <h2>カメラ</h2>
+                <video id="video" autoplay></video>
+                <button onclick="capturePhoto()">写真を撮る</button>
+                <canvas id="photoCanvas" width="640" height="480"></canvas>
+            </div>
+            <div id="media-player" class="app">
+                <h2>メディアプレイヤー</h2>
+                <input type="file" id="mediaFile" accept="audio/*">
+                <audio id="audioPlayer" controls></audio>
+                <script>
+                    document.getElementById('mediaFile').addEventListener('change', function() {
+                        const file = this.files[0];
+                        if (file) {
+                            const url = URL.createObjectURL(file);
+                            document.getElementById('audioPlayer').src = url;
+                        }
+                    });
+                </script>
+            </div>
+            <div id="browser" class="app">
+                <h2>ブラウザ</h2>
+                <input type="text" id="urlInput" placeholder="URLを入力">
+                <button onclick="navigate()">移動</button>
+                <iframe id="browserFrame" width="100%" height="500px"></iframe>
+                <script>
+                    function navigate() {
+                        const url = document.getElementById('urlInput').value;
+                        document.getElementById('browserFrame').src = url;
+                    }
+                </script>
+            </div>
+            <div id="notepad" class="app">
+                <h2>ノートパッド</h2>
+                <textarea id="notepadArea" placeholder="ここにテキストを入力..."></textarea>
+            </div>
+        </section>
+        <section id="settings">
+            <h2>設定</h2>
+            <p>設定項目はここに表示されます。</p>
+        </section>
+    </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("startup-sound").play();
+            loadAppState();
+        });
+
+        document.getElementById("start-button").addEventListener("click", () => {
+            const menu = document.getElementById("start-menu");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        });
+
+        function openApp(appName) {
+            const apps = document.querySelectorAll('.app');
+            apps.forEach(app => app.style.display = 'none');
+            document.getElementById(appName).style.display = 'block';
+            saveAppState(appName);
+        }
+
+        function saveAppState(appName) {
+            localStorage.setItem('activeApp', appName);
+        }
+
+        function loadAppState() {
+            const activeApp = localStorage.getItem('activeApp');
+            if (activeApp) {
+                openApp(activeApp);
+            }
+        }
+
+        // ペイントアプリの機能
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const shapeSelect = document.getElementById('shapeSelect');
+
+        let isDrawing = false;
+        let startX, startY;
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            startX = e.offsetX;
+            startY = e.offsetY;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDrawing) {
+                const currentX = e.offsetX;
+                const currentY = e.offsetY;
+                const shape = shapeSelect.value;
+                ctx.strokeStyle = colorPicker.value;
+                ctx.lineWidth = 2;
+
+                if (shape === 'line') {
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(currentX, currentY);
+                    ctx.stroke();
+                    startX = currentX;
+                    startY = currentY;
+                } else if (shape === 'circle') {
+                    const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+                    ctx.beginPath();
+                    ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                } else if (shape === 'rectangle') {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+                } else if (shape === 'point') {
+                    ctx.beginPath();
+                    ctx.arc(currentX, currentY, 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                } else if (shape === 'arc') {
+                    const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
+                    ctx.beginPath();
+                    ctx.arc(startX, startY, radius, 0, Math.PI);
+                    ctx.stroke();
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isDrawing = false;
+        });
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function exportImage() {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL();
+            link.download = 'paint.png';
+            link.click();
+        }
+
+        // カメラアプリの機能
+        const video = document.getElementById('video');
+        const photoCanvas = document.getElementById('photoCanvas');
+        const photoCtx = photoCanvas.getContext('2d');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error('カメラにアクセスできませんでした:', err);
+            });
+
+        function capturePhoto() {
+            photoCtx.drawImage(video, 0, 0, photoCanvas.width, photoCanvas.height);
+        }
+
+        // ノートパッドアプリの機能
+        const notepadArea = document.getElementById('notepadArea');
+
+        // ローカルストレージにノートパッドの内容を保存
+        notepadArea.addEventListener('input', () => {
+            localStorage.setItem('notepadContent', notepadArea.value);
+        });
+
+        // ローカルストレージからノートパッドの内容を読み込む
+        function loadNotepadContent() {
+            const savedContent = localStorage.getItem('notepadContent');
+            if (savedContent) {
+                notepadArea.value = savedContent;
+            }
+        }
+        loadNotepadContent();
+    </script>
+</body>
+</html>
