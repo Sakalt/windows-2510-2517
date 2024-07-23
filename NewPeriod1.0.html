@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Windows NewPeriod1.0</title>
+    <title>Windows NewPeriod 1.0</title>
     <style>
         body {
             margin: 0;
@@ -15,11 +15,9 @@
         }
 
         .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             position: relative;
+            width: 100vw;
+            height: 100vh;
         }
 
         .window {
@@ -28,7 +26,7 @@
             border-radius: 50%;
             background-color: #333;
             position: absolute;
-            display: block;
+            display: flex;
             justify-content: center;
             align-items: center;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
@@ -37,6 +35,8 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 1000;
+            transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
+            cursor: move;
         }
 
         .window .corner-button {
@@ -108,7 +108,6 @@
         #map { top: 50%; right: 10px; transform: translate(0, -50%); }
         #settings { bottom: 10px; left: 50%; transform: translate(-50%, 0); }
         #timer { top: 50%; left: 10px; transform: translate(0, -50%); }
-        #paint { bottom: 50px; left: 50%; transform: translate(-50%, 50px); }
 
         .app-content {
             display: none;
@@ -126,15 +125,6 @@
             display: block;
         }
 
-        #paint-canvas {
-            border: 1px solid #666;
-            background-color: #fff;
-        }
-
-        #paint-tools {
-            margin-top: 10px;
-        }
-
         #google-map {
             width: 100%;
             height: 100%;
@@ -145,11 +135,37 @@
             padding: 10px;
             font-size: 18px;
         }
+
+        /* スタートメニュー */
+        .start-menu {
+            width: 60px;
+            height: 60px;
+            background-color: #333;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            cursor: pointer;
+            z-index: 999;
+        }
+
+        .start-menu:hover {
+            background-color: #444;
+        }
+
+        .start-menu span {
+            font-size: 24px;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="window">
+        <div class="window" id="main-window">
             <div class="corner-button minimize">－</div>
             <div class="corner-button maximize">□</div>
             <div class="corner-button close">×</div>
@@ -158,8 +174,10 @@
                 <div class="app-button" id="map">Googleマップ</div>
                 <div class="app-button" id="settings">設定</div>
                 <div class="app-button" id="timer">タイマー</div>
-                <div class="app-button" id="paint">ペイント</div>
             </div>
+        </div>
+        <div class="start-menu" id="start-menu">
+            <span>〇</span>
         </div>
     </div>
     <div class="app-content" id="browser-content">
@@ -180,152 +198,66 @@
         <button id="start-timer">開始</button>
         <p id="timer-display">00:00</p>
     </div>
-    <div class="app-content" id="paint-content">
-        <h2>ペイント</h2>
-        <canvas id="paint-canvas" width="300" height="300"></canvas>
-        <div id="paint-tools">
-            <input type="color" id="color-picker" />
-            <button id="export-btn">エクスポート</button>
-        </div>
-    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM fully loaded and parsed');
-
-            // アプリケーションの表示・非表示の切り替え
-            document.querySelectorAll('.app-button').forEach(button => {
-                button.addEventListener('click', function() {
-                    console.log(`Button ${this.id} clicked`);
-                    document.querySelectorAll('.app-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    document.getElementById(`${this.id}-content`).classList.add('active');
+        // アプリの表示/非表示
+        document.querySelectorAll('.app-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.app-content').forEach(content => {
+                    content.classList.remove('active');
                 });
-            });
-
-            // ドラッグ機能
-            const centralCircle = document.querySelector('.central-circle');
-            let isDragging = false;
-            let offsetX, offsetY;
-
-            centralCircle.addEventListener('mousedown', (e) => {
-                console.log('Drag started');
-                isDragging = true;
-                offsetX = e.clientX - centralCircle.getBoundingClientRect().left;
-                offsetY = e.clientY - centralCircle.getBoundingClientRect().top;
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            });
-
-            function onMouseMove(e) {
-                if (!isDragging) return;
-                centralCircle.style.left = `${e.clientX - offsetX}px`;
-                centralCircle.style.top = `${e.clientY - offsetY}px`;
-            }
-
-            function onMouseUp() {
-                console.log('Drag ended');
-                isDragging = false;
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-            }
-
-            // 最小化、最大化、閉じるボタンの機能
-            const windowElement = document.querySelector('.window');
-            let isMaximized = false;
-
-            document.querySelector('.corner-button.minimize').addEventListener('click', () => {
-                console.log('Minimize button clicked');
-                windowElement.style.display = 'none';
-            });
-
-            document.querySelector('.corner-button.maximize').addEventListener('click', () => {
-                console.log('Maximize button clicked');
-                if (isMaximized) {
-                    windowElement.style.width = '400px';
-                    windowElement.style.height = '400px';
-                    windowElement.style.top = '50%';
-                    windowElement.style.left = '50%';
-                    windowElement.style.transform = 'translate(-50%, -50%)';
-                } else {
-                    windowElement.style.width = '100vw';
-                    windowElement.style.height = '100vh';
-                    windowElement.style.top = '0';
-                    windowElement.style.left = '0';
-                    windowElement.style.transform = 'none';
-                }
-                isMaximized = !isMaximized;
-            });
-
-            document.querySelector('.corner-button.close').addEventListener('click', () => {
-                console.log('Close button clicked');
-                if (confirm('本当に閉じますか？')) {
-                    windowElement.style.display = 'none';
-                }
-            });
-
-            // ペイント機能
-            const canvas = document.getElementById('paint-canvas');
-            const ctx = canvas.getContext('2d');
-            let drawing = false;
-            let color = '#000000';
-
-            document.getElementById('color-picker').addEventListener('input', (e) => {
-                color = e.target.value;
-            });
-
-            canvas.addEventListener('mousedown', () => {
-                drawing = true;
-            });
-
-            canvas.addEventListener('mouseup', () => {
-                drawing = false;
-                ctx.beginPath();
-            });
-
-            canvas.addEventListener('mousemove', (e) => {
-                if (!drawing) return;
-                ctx.lineWidth = 5;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = color;
-                ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
-                ctx.stroke();
-            });
-
-            document.getElementById('export-btn').addEventListener('click', () => {
-                console.log('Export button clicked');
-                const dataURL = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = dataURL;
-                link.download = 'drawing.png';
-                link.click();
-            });
-
-            // タイマー機能
-            const timerInput = document.getElementById('timer-input');
-            const timerDisplay = document.getElementById('timer-display');
-            let timerInterval;
-
-            document.getElementById('start-timer').addEventListener('click', () => {
-                console.log('Start timer button clicked');
-                clearInterval(timerInterval);
-                const time = parseInt(timerInput.value, 10);
-                let seconds = time;
-                
-                timerInterval = setInterval(() => {
-                    if (seconds <= 0) {
-                        clearInterval(timerInterval);
-                        alert('タイマー終了');
-                        return;
-                    }
-                    seconds--;
-                    const minutes = Math.floor(seconds / 60);
-                    const secs = seconds % 60;
-                    timerDisplay.textContent = `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-                }, 1000);
+                document.getElementById(button.id + '-content').classList.add('active');
             });
         });
+
+        // スタートメニューのクリックでウィンドウを表示
+        document.getElementById('start-menu').addEventListener('click', () => {
+            document.getElementById('main-window').style.display = 'flex';
+        });
+
+        // ドラッグ機能
+        dragElement(document.getElementById('main-window'));
+
+        function dragElement(elmnt) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            if (document.getElementById(elmnt.id + '-header')) {
+                // If present, the header is where you move the DIV from:
+                document.getElementById(elmnt.id + '-header').onmousedown = dragMouseDown;
+            } else {
+                // Otherwise, move the DIV from anywhere inside the DIV:
+                elmnt.onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // Get the mouse cursor position at startup:
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // Call a function whenever the cursor moves:
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // Calculate the new cursor position:
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // Set the element's new position:
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                // Stop moving when mouse button is released:
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
     </script>
 </body>
 </html>
