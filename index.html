@@ -11,6 +11,7 @@
             padding: 0;
             background: url('wallpaper.jpg') no-repeat center center fixed;
             background-size: cover;
+            overflow: hidden;
         }
 
         header {
@@ -85,10 +86,33 @@
             width: 800px;
             height: 600px;
             overflow: auto;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
         }
 
         .app h2 {
             margin-top: 0;
+        }
+
+        .app .window-header {
+            background-color: #333;
+            color: #fff;
+            padding: 5px;
+            cursor: move;
+            position: relative;
+        }
+
+        .app .window-header button {
+            margin-left: 5px;
+            padding: 5px;
+            color: #fff;
+            border: none;
+            background: #666;
+            cursor: pointer;
+        }
+
+        .app .window-header button:hover {
+            background: #444;
         }
 
         #paintCanvas {
@@ -127,6 +151,44 @@
         #browser button {
             padding: 10px;
         }
+
+        #lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        #lock-screen input {
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .minimized {
+            width: 200px;
+            height: 150px;
+            position: absolute;
+        }
+
+        .maximized {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .transparent {
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
@@ -160,7 +222,12 @@
         <section id="apps">
             <h2>アプリ</h2>
             <div id="paint" class="app">
-                <h2>ペイント</h2>
+                <div class="window-header">
+                    <span>ペイント</span>
+                    <button onclick="minimizeApp('paint')">最小化</button>
+                    <button onclick="maximizeApp('paint')">最大化</button>
+                    <button onclick="closeApp('paint')">閉じる</button>
+                </div>
                 <label for="colorPicker">色:</label>
                 <input type="color" id="colorPicker" value="#000000">
                 <br>
@@ -179,175 +246,145 @@
                 <canvas id="paintCanvas" width="100%" height="400px"></canvas>
             </div>
             <div id="camera" class="app">
-                <h2>カメラ</h2>
+                <div class="window-header">
+                    <span>カメラ</span>
+                    <button onclick="minimizeApp('camera')">最小化</button>
+                    <button onclick="maximizeApp('camera')">最大化</button>
+                    <button onclick="closeApp('camera')">閉じる</button>
+                </div>
                 <video id="video" autoplay></video>
                 <button onclick="capturePhoto()">写真を撮る</button>
                 <canvas id="photoCanvas" width="640" height="480"></canvas>
             </div>
             <div id="media-player" class="app">
-                <h2>メディアプレイヤー</h2>
+                <div class="window-header">
+                    <span>メディアプレイヤー</span>
+                    <button onclick="minimizeApp('media-player')">最小化</button>
+                    <button onclick="maximizeApp('media-player')">最大化</button>
+                    <button onclick="closeApp('media-player')">閉じる</button>
+                </div>
                 <input type="file" id="mediaFile" accept="audio/*">
                 <audio id="audioPlayer" controls></audio>
-                <script>
-                    document.getElementById('mediaFile').addEventListener('change', function() {
-                        const file = this.files[0];
-                        if (file) {
-                            const url = URL.createObjectURL(file);
-                            document.getElementById('audioPlayer').src = url;
-                        }
-                    });
-                </script>
             </div>
             <div id="browser" class="app">
-                <h2>ブラウザ</h2>
+                <div class="window-header">
+                    <span>ブラウザ</span>
+                    <button onclick="minimizeApp('browser')">最小化</button>
+                    <button onclick="maximizeApp('browser')">最大化</button>
+                    <button onclick="closeApp('browser')">閉じる</button>
+                </div>
                 <input type="text" id="urlInput" placeholder="URLを入力">
                 <button onclick="navigate()">移動</button>
                 <iframe id="browserFrame" width="100%" height="500px"></iframe>
-                <script>
-                    function navigate() {
-                        const url = document.getElementById('urlInput').value;
-                        document.getElementById('browserFrame').src = url;
-                    }
-                </script>
             </div>
             <div id="notepad" class="app">
-                <h2>ノートパッド</h2>
-                <textarea id="notepadArea" placeholder="ここにテキストを入力..."></textarea>
+                <div class="window-header">
+                    <span>ノートパッド</span>
+                    <button onclick="minimizeApp('notepad')">最小化</button>
+                    <button onclick="maximizeApp('notepad')">最大化</button>
+                    <button onclick="closeApp('notepad')">閉じる</button>
+                </div>
+                <textarea id="noteContent"></textarea>
             </div>
         </section>
-        <section id="settings">
-            <h2>設定</h2>
-            <p>設定項目はここに表示されます。</p>
-        </section>
     </main>
+    <div id="lock-screen">
+        <div>ロック画面です。パスワードを入力してください。</div>
+        <input type="password" id="passwordInput" placeholder="パスワード">
+        <button onclick="unlockScreen()">ロック解除</button>
+    </div>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("startup-sound").play();
-            loadAppState();
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('startup-sound').play();
         });
 
-        document.getElementById("start-button").addEventListener("click", () => {
-            const menu = document.getElementById("start-menu");
-            menu.style.display = menu.style.display === "block" ? "none" : "block";
-        });
-
-        function openApp(appName) {
-            const apps = document.querySelectorAll('.app');
-            apps.forEach(app => app.style.display = 'none');
-            document.getElementById(appName).style.display = 'block';
-            saveAppState(appName);
+        function openApp(appId) {
+            document.querySelectorAll('.app').forEach(app => {
+                app.style.display = 'none';
+            });
+            document.getElementById(appId).style.display = 'block';
         }
 
-        function saveAppState(appName) {
-            localStorage.setItem('activeApp', appName);
+        function closeApp(appId) {
+            document.getElementById(appId).style.display = 'none';
         }
 
-        function loadAppState() {
-            const activeApp = localStorage.getItem('activeApp');
-            if (activeApp) {
-                openApp(activeApp);
-            }
+        function minimizeApp(appId) {
+            const app = document.getElementById(appId);
+            app.classList.add('minimized');
+            app.classList.remove('maximized');
+            app.style.top = 'auto';
+            app.style.left = 'auto';
         }
 
-        // ペイントアプリの機能
-        const canvas = document.getElementById('paintCanvas');
-        const ctx = canvas.getContext('2d');
-        const colorPicker = document.getElementById('colorPicker');
-        const shapeSelect = document.getElementById('shapeSelect');
-
-        let isDrawing = false;
-        let startX, startY;
-
-        canvas.addEventListener('mousedown', (e) => {
-            isDrawing = true;
-            startX = e.offsetX;
-            startY = e.offsetY;
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (isDrawing) {
-                const currentX = e.offsetX;
-                const currentY = e.offsetY;
-                const shape = shapeSelect.value;
-                ctx.strokeStyle = colorPicker.value;
-                ctx.lineWidth = 2;
-
-                if (shape === 'line') {
-                    ctx.beginPath();
-                    ctx.moveTo(startX, startY);
-                    ctx.lineTo(currentX, currentY);
-                    ctx.stroke();
-                    startX = currentX;
-                    startY = currentY;
-                } else if (shape === 'circle') {
-                    const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
-                    ctx.beginPath();
-                    ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
-                    ctx.stroke();
-                } else if (shape === 'rectangle') {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
-                } else if (shape === 'point') {
-                    ctx.beginPath();
-                    ctx.arc(currentX, currentY, 2, 0, 2 * Math.PI);
-                    ctx.fill();
-                } else if (shape === 'arc') {
-                    const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
-                    ctx.beginPath();
-                    ctx.arc(startX, startY, radius, 0, Math.PI);
-                    ctx.stroke();
-                }
-            }
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            isDrawing = false;
-        });
+        function maximizeApp(appId) {
+            const app = document.getElementById(appId);
+            app.classList.add('maximized');
+            app.classList.remove('minimized');
+        }
 
         function clearCanvas() {
+            const canvas = document.getElementById('paintCanvas');
+            const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
         function exportImage() {
+            const canvas = document.getElementById('paintCanvas');
             const link = document.createElement('a');
             link.href = canvas.toDataURL();
-            link.download = 'paint.png';
+            link.download = 'painting.png';
             link.click();
         }
 
-        // カメラアプリの機能
-        const video = document.getElementById('video');
-        const photoCanvas = document.getElementById('photoCanvas');
-        const photoCtx = photoCanvas.getContext('2d');
-
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                video.srcObject = stream;
-            })
-            .catch(err => {
-                console.error('カメラにアクセスできませんでした:', err);
-            });
-
         function capturePhoto() {
-            photoCtx.drawImage(video, 0, 0, photoCanvas.width, photoCanvas.height);
+            const canvas = document.getElementById('photoCanvas');
+            const context = canvas.getContext('2d');
+            const video = document.getElementById('video');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
         }
 
-        // ノートパッドアプリの機能
-        const notepadArea = document.getElementById('notepadArea');
+        function navigate() {
+            const url = document.getElementById('urlInput').value;
+            document.getElementById('browserFrame').src = url;
+        }
 
-        // ローカルストレージにノートパッドの内容を保存
-        notepadArea.addEventListener('input', () => {
-            localStorage.setItem('notepadContent', notepadArea.value);
+        function unlockScreen() {
+            document.getElementById('lock-screen').style.display = 'none';
+        }
+
+        document.getElementById('start-button').addEventListener('click', () => {
+            const menu = document.getElementById('start-menu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
         });
 
-        // ローカルストレージからノートパッドの内容を読み込む
-        function loadNotepadContent() {
-            const savedContent = localStorage.getItem('notepadContent');
-            if (savedContent) {
-                notepadArea.value = savedContent;
-            }
-        }
-        loadNotepadContent();
+        document.querySelectorAll('.app').forEach(app => {
+            app.addEventListener('mousedown', function (e) {
+                if (e.target.classList.contains('window-header')) {
+                    let shiftX = e.clientX - app.getBoundingClientRect().left;
+                    let shiftY = e.clientY - app.getBoundingClientRect().top;
+
+                    function moveAt(pageX, pageY) {
+                        app.style.left = pageX - shiftX + 'px';
+                        app.style.top = pageY - shiftY + 'px';
+                    }
+
+                    function onMouseMove(e) {
+                        moveAt(e.pageX, e.pageY);
+                    }
+
+                    document.addEventListener('mousemove', onMouseMove);
+
+                    app.onmouseup = function () {
+                        document.removeEventListener('mousemove', onMouseMove);
+                        app.onmouseup = null;
+                    };
+                }
+            });
+        });
+
+        // Start with the lock screen visible
+        document.getElementById('lock-screen').style.display = 'flex';
     </script>
 </body>
 </html>
