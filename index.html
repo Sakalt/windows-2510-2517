@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sirius OS 2510</title>
+    <title>Windows Sirius</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             background: url('wallpaper.jpg') no-repeat center center fixed;
@@ -15,11 +15,11 @@
         }
 
         header {
-            background-color: rgba(51, 51, 51, 0.8);
+            background-color: #003B6F;
             color: #fff;
             padding: 10px;
             text-align: center;
-            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         nav ul {
@@ -28,10 +28,12 @@
             margin: 0;
             display: flex;
             justify-content: center;
+            background-color: #004B87;
         }
 
         nav ul li {
-            margin: 0 10px;
+            margin: 0;
+            padding: 10px 20px;
         }
 
         nav ul li a {
@@ -47,6 +49,8 @@
             padding: 10px;
             margin: 5px;
             cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         #start-menu {
@@ -72,7 +76,7 @@
         }
 
         #start-menu ul li:hover {
-            background-color: #ddd;
+            background-color: #eee;
         }
 
         .app {
@@ -95,11 +99,13 @@
         }
 
         .app .window-header {
-            background-color: #333;
+            background-color: #003B6F;
             color: #fff;
             padding: 5px;
             cursor: move;
-            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .app .window-header button {
@@ -107,21 +113,20 @@
             padding: 5px;
             color: #fff;
             border: none;
-            background: #666;
+            background: #004B87;
             cursor: pointer;
         }
 
         .app .window-header button:hover {
-            background: #444;
+            background: #003B6F;
         }
 
-        #paintCanvas {
-            border: 1px solid #ccc;
+        .app .window-controls {
+            display: flex;
         }
 
-        textarea {
-            width: 100%;
-            height: 100%;
+        .app .window-controls button {
+            margin-left: 5px;
         }
 
         #camera {
@@ -135,173 +140,180 @@
             border: 1px solid #ccc;
         }
 
-        #media-player input[type="file"] {
-            margin-bottom: 10px;
-        }
-
-        #media-player audio {
-            width: 100%;
-        }
-
-        #browser input[type="text"] {
-            width: calc(100% - 80px);
-            padding: 10px;
-        }
-
-        #browser button {
-            padding: 10px;
-        }
-
-        #lock-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        #cameraCanvas {
             display: none;
         }
 
-        #lock-screen input {
-            padding: 10px;
-            margin-top: 20px;
-            font-size: 16px;
-        }
-
-        .minimized {
-            width: 200px;
-            height: 150px;
-            position: absolute;
-        }
-
-        .maximized {
-            width: 100%;
+        #paint {
+            display: flex;
+            flex-direction: column;
             height: 100%;
-            top: 0;
-            left: 0;
         }
 
-        .transparent {
-            opacity: 0.5;
+        #paintCanvas {
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: crosshair;
         }
+
+        /* Additional styles for other apps */
     </style>
 </head>
 <body>
-    <audio id="startup-sound" src="myedit_ai_sfx_0723132129.mp3" preload="auto"></audio>
+    <audio id="startup-sound" src="siriusstart.wav" preload="auto"></audio>
     <header>
-        <h1>Sirius OS 2510</h1>
+        <h1>Windows Sirius</h1>
         <button id="start-button">スタート</button>
         <div id="start-menu">
             <ul>
                 <li onclick="openApp('paint')">ペイント</li>
                 <li onclick="openApp('camera')">カメラ</li>
-                <li onclick="openApp('image-viewer')">画像表示</li>
-                <li onclick="openApp('media-player')">メディアプレイヤー</li>
-                <li onclick="openApp('browser')">ブラウザ</li>
                 <li onclick="openApp('notepad')">ノートパッド</li>
+                <li onclick="openApp('browser')">ブラウザ</li>
+                <li onclick="openApp('mediaplayer')">メディアプレイヤー</li>
+                <li onclick="openApp('timer')">タイマー</li>
+                <li onclick="openApp('ai')">AI</li>
+                <li onclick="openApp('time')">時間</li>
+                <li onclick="openApp('version-info')">バージョン情報</li>
             </ul>
         </div>
-        <nav>
-            <ul>
-                <li><a href="#home">ホーム</a></li>
-                <li><a href="#apps">アプリ</a></li>
-                <li><a href="#settings">設定</a></li>
-            </ul>
-        </nav>
     </header>
     <main>
-        <section id="home">
-            <h2>ホーム</h2>
-            <p>ようこそ、Sirius OS 2510へ。</p>
-        </section>
-        <section id="apps">
-            <h2>アプリ</h2>
-            <div id="paint" class="app">
-                <div class="window-header">
-                    <span>ペイント</span>
+        <!-- Paint App -->
+        <div id="paint" class="app">
+            <div class="window-header">
+                <span>ペイント</span>
+                <div class="window-controls">
                     <button onclick="minimizeApp('paint')">最小化</button>
                     <button onclick="maximizeApp('paint')">最大化</button>
                     <button onclick="closeApp('paint')">閉じる</button>
                 </div>
-                <label for="colorPicker">色:</label>
-                <input type="color" id="colorPicker" value="#000000">
-                <br>
-                <label for="shapeSelect">図形:</label>
-                <select id="shapeSelect">
-                    <option value="line">ライン</option>
-                    <option value="circle">円</option>
-                    <option value="rectangle">四角形</option>
-                    <option value="point">点</option>
-                    <option value="arc">弧</option>
-                </select>
-                <br>
-                <button onclick="clearCanvas()">キャンバスクリア</button>
-                <button onclick="exportImage()">画像として保存</button>
-                <br>
-                <canvas id="paintCanvas" width="100%" height="400px"></canvas>
             </div>
-            <div id="camera" class="app">
-                <div class="window-header">
-                    <span>カメラ</span>
+            <canvas id="paintCanvas" width="800" height="600"></canvas>
+            <!-- Paint tools here -->
+        </div>
+
+        <!-- Camera App -->
+        <div id="camera" class="app">
+            <div class="window-header">
+                <span>カメラ</span>
+                <div class="window-controls">
                     <button onclick="minimizeApp('camera')">最小化</button>
                     <button onclick="maximizeApp('camera')">最大化</button>
                     <button onclick="closeApp('camera')">閉じる</button>
                 </div>
-                <video id="video" autoplay></video>
-                <button onclick="capturePhoto()">写真を撮る</button>
-                <canvas id="photoCanvas" width="640" height="480"></canvas>
             </div>
-            <div id="media-player" class="app">
-                <div class="window-header">
-                    <span>メディアプレイヤー</span>
-                    <button onclick="minimizeApp('media-player')">最小化</button>
-                    <button onclick="maximizeApp('media-player')">最大化</button>
-                    <button onclick="closeApp('media-player')">閉じる</button>
-                </div>
-                <input type="file" id="mediaFile" accept="audio/*">
-                <audio id="audioPlayer" controls></audio>
-            </div>
-            <div id="browser" class="app">
-                <div class="window-header">
-                    <span>ブラウザ</span>
-                    <button onclick="minimizeApp('browser')">最小化</button>
-                    <button onclick="maximizeApp('browser')">最大化</button>
-                    <button onclick="closeApp('browser')">閉じる</button>
-                </div>
-                <input type="text" id="urlInput" placeholder="URLを入力">
-                <button onclick="navigate()">移動</button>
-                <iframe id="browserFrame" width="100%" height="500px"></iframe>
-            </div>
-            <div id="notepad" class="app">
-                <div class="window-header">
-                    <span>ノートパッド</span>
+            <video id="video" autoplay></video>
+            <button onclick="capturePhoto()">写真を撮る</button>
+            <canvas id="cameraCanvas"></canvas>
+        </div>
+
+        <!-- Notepad App -->
+        <div id="notepad" class="app">
+            <div class="window-header">
+                <span>ノートパッド</span>
+                <div class="window-controls">
                     <button onclick="minimizeApp('notepad')">最小化</button>
                     <button onclick="maximizeApp('notepad')">最大化</button>
                     <button onclick="closeApp('notepad')">閉じる</button>
                 </div>
-                <textarea id="noteContent"></textarea>
             </div>
-        </section>
+            <textarea id="notepadTextarea" rows="25" cols="100"></textarea>
+        </div>
+
+        <!-- Browser App -->
+        <div id="browser" class="app">
+            <div class="window-header">
+                <span>ブラウザ</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('browser')">最小化</button>
+                    <button onclick="maximizeApp('browser')">最大化</button>
+                    <button onclick="closeApp('browser')">閉じる</button>
+                </div>
+            </div>
+            <iframe id="browserFrame" src="about:blank" style="width:100%; height:500px;"></iframe>
+        </div>
+
+        <!-- MediaPlayer App -->
+        <div id="mediaplayer" class="app">
+            <div class="window-header">
+                <span>メディアプレイヤー</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('mediaplayer')">最小化</button>
+                    <button onclick="maximizeApp('mediaplayer')">最大化</button>
+                    <button onclick="closeApp('mediaplayer')">閉じる</button>
+                </div>
+            </div>
+            <audio id="mediaPlayer" controls></audio>
+        </div>
+
+        <!-- Timer App -->
+        <div id="timer" class="app">
+            <div class="window-header">
+                <span>タイマー</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('timer')">最小化</button>
+                    <button onclick="maximizeApp('timer')">最大化</button>
+                    <button onclick="closeApp('timer')">閉じる</button>
+                </div>
+            </div>
+            <input type="text" id="timerInput" placeholder="時間を入力">
+            <button onclick="startTimer()">スタート</button>
+            <div id="timerDisplay"></div>
+        </div>
+
+        <!-- AI App -->
+        <div id="ai" class="app">
+            <div class="window-header">
+                <span>AI</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('ai')">最小化</button>
+                    <button onclick="maximizeApp('ai')">最大化</button>
+                    <button onclick="closeApp('ai')">閉じる</button>
+                </div>
+            </div>
+            <input type="text" id="aiInput" placeholder="質問を入力">
+            <button onclick="askAI()">質問する</button>
+            <div id="aiResponse"></div>
+        </div>
+
+        <!-- Time App -->
+        <div id="time" class="app">
+            <div class="window-header">
+                <span>時間</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('time')">最小化</button>
+                    <button onclick="maximizeApp('time')">最大化</button>
+                    <button onclick="closeApp('time')">閉じる</button>
+                </div>
+            </div>
+            <div id="currentTime"></div>
+        </div>
+
+        <!-- Version Info App -->
+        <div id="version-info" class="app">
+            <div class="window-header">
+                <span>バージョン情報</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('version-info')">最小化</button>
+                    <button onclick="maximizeApp('version-info')">最大化</button>
+                    <button onclick="closeApp('version-info')">閉じる</button>
+                </div>
+            </div>
+            <div id="versionDetails"></div>
+        </div>
     </main>
-    <div id="lock-screen">
-        <div>ロック画面です。パスワードを入力してください。</div>
-        <input type="password" id="passwordInput" placeholder="パスワード">
-        <button onclick="unlockScreen()">ロック解除</button>
-    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('startup-sound').play();
+            setInterval(() => {
+                document.getElementById('currentTime').textContent = new Date().toLocaleTimeString();
+            }, 1000);
         });
 
         function openApp(appId) {
-            document.querySelectorAll('.app').forEach(app => {
-                app.style.display = 'none';
-            });
+            closeAllApps();
             document.getElementById(appId).style.display = 'block';
         }
 
@@ -311,80 +323,59 @@
 
         function minimizeApp(appId) {
             const app = document.getElementById(appId);
-            app.classList.add('minimized');
-            app.classList.remove('maximized');
-            app.style.top = 'auto';
-            app.style.left = 'auto';
+            app.style.width = '300px';
+            app.style.height = '200px';
+            app.style.top = 'calc(100% - 210px)';
+            app.style.left = 'calc(100% - 310px)';
         }
 
         function maximizeApp(appId) {
             const app = document.getElementById(appId);
-            app.classList.add('maximized');
-            app.classList.remove('minimized');
-        }
-
-        function clearCanvas() {
-            const canvas = document.getElementById('paintCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        function exportImage() {
-            const canvas = document.getElementById('paintCanvas');
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL();
-            link.download = 'painting.png';
-            link.click();
+            app.style.width = '800px';
+            app.style.height = '600px';
+            app.style.top = '100px';
+            app.style.left = '50px';
         }
 
         function capturePhoto() {
-            const canvas = document.getElementById('photoCanvas');
-            const context = canvas.getContext('2d');
             const video = document.getElementById('video');
+            const canvas = document.getElementById('cameraCanvas');
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
         }
 
-        function navigate() {
-            const url = document.getElementById('urlInput').value;
-            document.getElementById('browserFrame').src = url;
+        function startTimer() {
+            const input = document.getElementById('timerInput').value;
+            const display = document.getElementById('timerDisplay');
+            const endTime = new Date(new Date().getTime() + parseInt(input) * 1000);
+            const interval = setInterval(() => {
+                const now = new Date();
+                const remaining = endTime - now;
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    display.textContent = 'タイマー終了';
+                } else {
+                    display.textContent = `残り: ${Math.floor(remaining / 1000)}秒`;
+                }
+            }, 1000);
         }
 
-        function unlockScreen() {
-            document.getElementById('lock-screen').style.display = 'none';
+        function askAI() {
+            const input = document.getElementById('aiInput').value;
+            const response = `AIの回答: "${input}"`;
+            document.getElementById('aiResponse').textContent = response;
+        }
+
+        function closeAllApps() {
+            document.querySelectorAll('.app').forEach(app => app.style.display = 'none');
         }
 
         document.getElementById('start-button').addEventListener('click', () => {
             const menu = document.getElementById('start-menu');
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         });
-
-        document.querySelectorAll('.app').forEach(app => {
-            app.addEventListener('mousedown', function (e) {
-                if (e.target.classList.contains('window-header')) {
-                    let shiftX = e.clientX - app.getBoundingClientRect().left;
-                    let shiftY = e.clientY - app.getBoundingClientRect().top;
-
-                    function moveAt(pageX, pageY) {
-                        app.style.left = pageX - shiftX + 'px';
-                        app.style.top = pageY - shiftY + 'px';
-                    }
-
-                    function onMouseMove(e) {
-                        moveAt(e.pageX, e.pageY);
-                    }
-
-                    document.addEventListener('mousemove', onMouseMove);
-
-                    app.onmouseup = function () {
-                        document.removeEventListener('mousemove', onMouseMove);
-                        app.onmouseup = null;
-                    };
-                }
-            });
-        });
-
-        // Start with the lock screen visible
-        document.getElementById('lock-screen').style.display = 'flex';
     </script>
 </body>
 </html>
