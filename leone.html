@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Leone (2523)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('wallpaper.jpg') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        .app-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px -4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .app-bar img {
+            width: 40px;
+            height: 40px;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        .app {
+            display: none;
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: auto;
+            transition: all 0.3s ease;
+        }
+
+        .app h2 {
+            margin-top: 0;
+        }
+
+        .app .window-header {
+            background-color: #0078d4;
+            color: #fff;
+            padding: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #fff;
+        }
+
+        .app .window-controls {
+            display: flex;
+        }
+
+        .app .window-controls button {
+            margin-left: 5px;
+            padding: 5px;
+            color: #fff;
+            border: none;
+            background: #0067b8;
+            cursor: pointer;
+        }
+
+        .app .window-controls button:hover {
+            background: #0054a2;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        textarea {
+            width: 100%;
+            height: 90%;
+        }
+
+        #timerDisplay {
+            margin-top: 10px;
+        }
+
+        #paintCanvas {
+            border: 1px solid #ccc;
+        }
+
+        #paintTools {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        #paintTools label {
+            margin-right: 10px;
+        }
+
+        #paintTools input[type="color"] {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+
+        #paintTools input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        #paintTools button {
+            padding: 5px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 起動音 -->
+    <audio id="startupSound" src="myedit_ai_sfx_0723141056.mp3" preload="auto"></audio>
+
+    <!-- Application Bar -->
+    <div class="app-bar">
+        <img src="paint-icon.png" alt="ペイント" onclick="openApp('paint')">
+        <img src="notepad-icon.png" alt="ノートパッド" onclick="openApp('notepad')">
+        <img src="browser-icon.png" alt="ブラウザ" onclick="openApp('browser')">
+        <img src="mediaplayer-icon.png" alt="メディアプレイヤー" onclick="openApp('mediaplayer')">
+        <img src="timer-icon.png" alt="タイマー" onclick="openApp('timer')">
+        <img src="explorer-icon.png" alt="エクスプローラー" onclick="openApp('explorer')">
+        <img src="controlpanel-icon.png" alt="コントロールパネル" onclick="openApp('controlPanel')">
+        <img src="clock-icon.png" alt="時計" onclick="openApp('clock')">
+        <img src="calculator-icon.png" alt="電卓" onclick="openApp('calculator')">
+        <img src="camera-icon.png" alt="カメラ" onclick="openApp('camera')">
+        <img src="games-icon.png" alt="ゲーム" onclick="openApp('games')">
+        <img src="settings-icon.png" alt="設定" onclick="openApp('settings')">
+        <img src="help-icon.png" alt="ヘルプ" onclick="openApp('help')">
+        <img src="updates-icon.png" alt="アップデート" onclick="openApp('updates')">
+    </div>
+
+    <!-- Application Windows -->
+    <div id="paint" class="app">
+        <div class="window-header">
+            <span>ペイント</span>
+            <div class="window-controls">
+                <button onclick="minimizeApp('paint')">最小化</button>
+                <button onclick="maximizeApp('paint')">最大化</button>
+                <button onclick="closeApp('paint')">閉じる</button>
+            </div>
+        </div>
+        <div id="paintTools">
+            <label for="paintColor">色:</label>
+            <input type="color" id="paintColor" value="#000000">
+            <label for="paintWidth">線の太さ:</label>
+            <input type="number" id="paintWidth" value="5" min="1" max="100">
+            <button onclick="clearCanvas()">クリア</button>
+            <button onclick="saveCanvas()">保存</button>
+        </div>
+        <canvas id="paintCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <div id="notepad" class="app">
+        <div class="window-header">
+            <span>ノートパッド</span>
+            <div class="window-controls">
+                <button onclick="minimizeApp('notepad')">最小化</button>
+                <button onclick="maximizeApp('notepad')">最大化</button>
+                <button onclick="closeApp('notepad')">閉じる</button>
+            </div>
+        </div>
+        <textarea id="notepadText"></textarea>
+    </div>
+
+    <div id="browser" class="app">
+        <div class="window-header">
+            <span>ブラウザ</span>
+            <div class="window-controls">
+                <button onclick="minimizeApp('browser')">最小化</button>
+                <button onclick="maximizeApp('browser')">最大化</button>
+                <button onclick="closeApp('browser')">閉じる</button>
+            </div>
+        </div>
+        <iframe id="browserIframe" src=""></iframe>
+    </div>
+
+    <div id="mediaplayer" class="app">
+        <div class="window-header">
+            <span>メディアプレイヤー</span>
+            <div class="window-controls">
+                <button onclick="minimizeApp('mediaplayer')">最小化</button>
+                <button onclick="maximizeApp('mediaplayer')">最大化</button>
+                <button onclick="closeApp('mediaplayer')">閉じる</button>
+            </div>
+        </div>
+        <video id="mediaPlayerVideo" controls>
+            <source src="sample-video.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div id="timer" class="app">
+        <div class="window-header">
+            <span>タイマー</span>
+            <div class="window-controls">
+                <button onclick="minimizeApp('timer')">最小化</button>
+                <button onclick="maximizeApp('timer')">最大化</button>
+                <button onclick="closeApp('timer')">閉じる</button>
+            </div>
+        </div>
+        <input type="number" id="timerInput" placeholder="秒数を入力">
+        <button onclick="startTimer()">スタート</button>
+        <button onclick="stopTimer()">ストップ</button>
+        <div id="timerDisplay"></div>
+    </div>
+
+    <div id="explorer" class="app">
+        <div class="window-header">
+            <span>エクスプローラー</span>
+            <div class="window-controls">
+                <button onclick="minimizeApp('explorer')">最小化</button>
+                <button onclick="maximizeApp('explorer')">最大化</button>
+                <button onclick="closeApp('explorer')">閉じる</button>
+            </div>
+        </div>
+        <iframe id="explorerIframe" src="file-explorer.html"></iframe>
+    </div>
+
+    <div id="controlPanel" class="app">
+        <div class="window-header">
+            <span>コントロールパネル</span>
+            <div class="window-controls">
+                <button onclick="minimizeApp('controlPanel')">最小化</button>
+                <button onclick="maximizeApp('controlPanel')">最大化</button>
+                <button onclick="closeApp('controlPanel')">閉じる</button>
+            </div>
+        </div>
+        <iframe id="controlPanelIframe" src="control-panel.html"></iframe>
+    </div>
+
+    <div id="clock" class="app">
+        <div class="window-header">
+            <span>時計</span>
+            <div class="window-controls">
+                <button onclick="minimizeApp('clock')">最小化</button>
+                <button onclick="maximizeApp('clock')">最大化</button>
+                <button onclick="closeApp('clock')">閉じる</button>
+            </div>
+        </div>
+        <div id="clockDisplay"></div>
+    </div>
+
+    <script>
+        // 起動時に音声を再生
+        window.onload = function() {
+            document.getElementById('startupSound').play();
+        };
+
+        function openApp(appId) {
+            const apps = document.querySelectorAll('.app');
+            apps.forEach(app => {
+                if (app.id === appId) {
+                    app.style.display = 'block';
+                } else {
+                    app.style.display = 'none';
+                }
+            });
+        }
+
+        function minimizeApp(appId) {
+            document.getElementById(appId).style.display = 'none';
+        }
+
+        function maximizeApp(appId) {
+            const app = document.getElementById(appId);
+            app.style.width = '100%';
+            app.style.height = '100%';
+            app.style.top = '0';
+            app.style.left = '0';
+        }
+
+        function closeApp(appId) {
+            document.getElementById(appId).style.display = 'none';
+        }
+
+        function startTimer() {
+            const seconds = document.getElementById('timerInput').value;
+            if (isNaN(seconds) || seconds <= 0) {
+                alert('有効な秒数を入力してください。');
+                return;
+            }
+            const timerDisplay = document.getElementById('timerDisplay');
+            let timeLeft = seconds;
+            timerDisplay.textContent = `残り時間: ${timeLeft}秒`;
+            const interval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    timerDisplay.textContent = 'タイマー終了';
+                } else {
+                    timerDisplay.textContent = `残り時間: ${timeLeft}秒`;
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(interval);
+            document.getElementById('timerDisplay').textContent = 'タイマー停止';
+        }
+
+        // ペイントアプリ機能
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+        let color = '#000000';
+        let lineWidth = 5;
+
+        canvas.addEventListener('mousedown', () => {
+            painting = true;
+            ctx.beginPath();
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            painting = false;
+        });
+
+        canvas.addEventListener('mousemove', (event) => {
+            if (painting) {
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = color;
+                ctx.lineTo(event.clientX - canvas.offsetLeft, event.clientY - canvas.offsetTop);
+                ctx.stroke();
+            }
+        });
+
+        document.getElementById('paintColor').addEventListener('input', (event) => {
+            color = event.target.value;
+        });
+
+        document.getElementById('paintWidth').addEventListener('input', (event) => {
+            lineWidth = event.target.value;
+        });
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveCanvas() {
+            const link = document.createElement('a');
+            link.download = 'drawing.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // 時計の表示
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clockDisplay').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
