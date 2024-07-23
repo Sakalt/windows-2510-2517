@@ -52,6 +52,7 @@
             justify-content: space-between;
             align-items: center;
             cursor: move;
+            user-select: none;
         }
 
         #main-window-header .window-btn {
@@ -522,6 +523,9 @@
             const statusText = document.getElementById('install-status');
             let progress = 0;
 
+            progressBar.style.width = '0%';
+            statusText.textContent = 'インストール中...';
+
             const interval = setInterval(() => {
                 progress += 10;
                 progressBar.style.width = `${progress}%`;
@@ -531,6 +535,26 @@
                 }
             }, 1000);
         }
+
+        // ウィンドウ操作
+        document.getElementById('minimize-btn').addEventListener('click', () => {
+            document.getElementById('main-window').style.display = 'none';
+        });
+
+        document.getElementById('maximize-btn').addEventListener('click', () => {
+            const mainWindow = document.getElementById('main-window');
+            if (mainWindow.style.width === '100vw' && mainWindow.style.height === '100vh') {
+                mainWindow.style.width = '80vw';
+                mainWindow.style.height = '80vh';
+            } else {
+                mainWindow.style.width = '100vw';
+                mainWindow.style.height = '100vh';
+            }
+        });
+
+        document.getElementById('close-btn').addEventListener('click', () => {
+            document.getElementById('main-window').style.display = 'none';
+        });
     </script>
 </body>
 </html>
