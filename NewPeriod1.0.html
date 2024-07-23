@@ -28,7 +28,7 @@
             border-radius: 50%;
             background-color: #333;
             position: absolute;
-            display: block; /* Ensure the window is displayed */
+            display: block;
             justify-content: center;
             align-items: center;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
@@ -36,6 +36,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            z-index: 1000;
         }
 
         .window .corner-button {
@@ -48,6 +49,7 @@
             cursor: pointer;
             transition: background 0.3s;
             color: #fff;
+            font-size: 18px;
         }
 
         .window .corner-button.minimize {
@@ -138,10 +140,6 @@
             height: 100%;
         }
 
-        #browser-content, #settings-content, #timer-content {
-            padding: 20px;
-        }
-
         #timer-content input {
             width: 100%;
             padding: 10px;
@@ -156,7 +154,6 @@
             <div class="corner-button maximize">□</div>
             <div class="corner-button close">×</div>
             <div class="central-circle">
-                <div class="drag-area"></div>
                 <div class="app-button" id="browser">ブラウザ</div>
                 <div class="app-button" id="map">Googleマップ</div>
                 <div class="app-button" id="settings">設定</div>
@@ -176,7 +173,6 @@
     <div class="app-content" id="settings-content">
         <h2>設定</h2>
         <p>ここでシステム設定を調整できます。</p>
-        <!-- ここに設定の詳細な内容を追加 -->
     </div>
     <div class="app-content" id="timer-content">
         <h2>タイマー</h2>
@@ -194,7 +190,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
+        document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM fully loaded and parsed');
 
             // アプリケーションの表示・非表示の切り替え
@@ -213,7 +209,7 @@
             let isDragging = false;
             let offsetX, offsetY;
 
-            document.querySelector('.drag-area').addEventListener('mousedown', (e) => {
+            centralCircle.addEventListener('mousedown', (e) => {
                 console.log('Drag started');
                 isDragging = true;
                 offsetX = e.clientX - centralCircle.getBoundingClientRect().left;
