@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Queen</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('queen_background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        #start-menu {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        #start-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #start-menu ul li {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #start-menu ul li:hover {
+            background-color: #eee;
+        }
+
+        .app {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            width: 800px;
+            height: 600px;
+            overflow: auto;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .app .window-header {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            padding: 5px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #fff;
+        }
+
+        .app .window-controls {
+            display: flex;
+        }
+
+        .app .window-controls button {
+            margin-left: 5px;
+            padding: 5px;
+            color: #fff;
+            border: none;
+            background: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+        }
+
+        .app .window-controls button:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        #paintCanvas {
+            border: 1px solid #ccc;
+            background-color: #fff;
+            cursor: crosshair;
+        }
+
+        #cameraCanvas {
+            display: none;
+        }
+
+        #browser-tabs {
+            display: flex;
+            background-color: #f1f1f1;
+            padding: 5px;
+        }
+
+        #browser-tabs button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+
+        #browser-tabs button.active {
+            background-color: #ddd;
+        }
+
+        #browser-navigation {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        #browser-navigation input {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #browser-navigation button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <audio id="startup-sound" src="myedit_ai_sfx_0723132129.mp3" preload="auto"></audio>
+    <header>
+        <h1>Windows Queen</h1>
+        <button id="start-button">スタート</button>
+        <div id="start-menu">
+            <ul>
+                <li onclick="openApp('paint')">ペイント</li>
+                <li onclick="openApp('camera')">カメラ</li>
+                <li onclick="openApp('notepad')">ノートパッド</li>
+                <li onclick="openApp('browser')">ブラウザ</li>
+                <li onclick="openApp('mediaplayer')">メディアプレイヤー</li>
+                <li onclick="openApp('timer')">タイマー</li>
+                <li onclick="openApp('ai')">AI</li>
+                <li onclick="openApp('time')">時間</li>
+                <li onclick="openApp('version-info')">バージョン情報</li>
+            </ul>
+        </div>
+    </header>
+    <main>
+        <!-- Paint App -->
+        <div id="paint" class="app">
+            <div class="window-header">
+                <span>ペイント</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('paint')">最小化</button>
+                    <button onclick="maximizeApp('paint')">最大化</button>
+                    <button onclick="closeApp('paint')">閉じる</button>
+                </div>
+            </div>
+            <canvas id="paintCanvas" width="800" height="600"></canvas>
+        </div>
+
+        <!-- Camera App -->
+        <div id="camera" class="app">
+            <div class="window-header">
+                <span>カメラ</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('camera')">最小化</button>
+                    <button onclick="maximizeApp('camera')">最大化</button>
+                    <button onclick="closeApp('camera')">閉じる</button>
+                </div>
+            </div>
+            <video id="video" autoplay></video>
+            <button onclick="capturePhoto()">写真を撮る</button>
+            <canvas id="cameraCanvas"></canvas>
+        </div>
+
+        <!-- Notepad App -->
+        <div id="notepad" class="app">
+            <div class="window-header">
+                <span>ノートパッド</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('notepad')">最小化</button>
+                    <button onclick="maximizeApp('notepad')">最大化</button>
+                    <button onclick="closeApp('notepad')">閉じる</button>
+                </div>
+            </div>
+            <textarea rows="20" cols="80"></textarea>
+        </div>
+
+        <!-- Browser App -->
+        <div id="browser" class="app">
+            <div class="window-header">
+                <span>ブラウザ</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('browser')">最小化</button>
+                    <button onclick="maximizeApp('browser')">最大化</button>
+                    <button onclick="closeApp('browser')">閉じる</button>
+                </div>
+            </div>
+            <div id="browser-navigation">
+                <button onclick="goBack()">戻る</button>
+                <button onclick="goForward()">進む</button>
+                <input type="text" id="url" placeholder="URLを入力">
+                <button onclick="goToUrl()">移動</button>
+                <button onclick="newTab()">新しいタブ</button>
+            </div>
+            <iframe id="browserIframe" style="width: 100%; height: 500px; border: none;"></iframe>
+        </div>
+
+        <!-- Media Player App -->
+        <div id="mediaplayer" class="app">
+            <div class="window-header">
+                <span>メディアプレイヤー</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('mediaplayer')">最小化</button>
+                    <button onclick="maximizeApp('mediaplayer')">最大化</button>
+                    <button onclick="closeApp('mediaplayer')">閉じる</button>
+                </div>
+            </div>
+            <input type="file" id="mediaFile" accept="audio/*,video/*">
+            <video id="mediaPlayer" controls></video>
+        </div>
+
+        <!-- Timer App -->
+        <div id="timer" class="app">
+            <div class="window-header">
+                <span>タイマー</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('timer')">最小化</button>
+                    <button onclick="maximizeApp('timer')">最大化</button>
+                    <button onclick="closeApp('timer')">閉じる</button>
+                </div>
+            </div>
+            <input type="number" id="timerInput" placeholder="秒数を入力">
+            <button onclick="startTimer()">スタート</button>
+            <button onclick="stopTimer()">ストップ</button>
+            <div id="timerDisplay"></div>
+        </div>
+
+        <!-- AI App -->
+        <div id="ai" class="app">
+            <div class="window-header">
+                <span>AI</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('ai')">最小化</button>
+                    <button onclick="maximizeApp('ai')">最大化</button>
+                    <button onclick="closeApp('ai')">閉じる</button>
+                </div>
+            </div>
+            <div>AI アプリケーションの内容を表示</div>
+        </div>
+
+        <!-- Time App -->
+        <div id="time" class="app">
+            <div class="window-header">
+                <span>時間</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('time')">最小化</button>
+                    <button onclick="maximizeApp('time')">最大化</button>
+                    <button onclick="closeApp('time')">閉じる</button>
+                </div>
+            </div>
+            <div id="currentTime"></div>
+        </div>
+
+        <!-- Version Info App -->
+        <div id="version-info" class="app">
+            <div class="window-header">
+                <span>バージョン情報</span>
+                <div class="window-controls">
+                    <button onclick="minimizeApp('version-info')">最小化</button>
+                    <button onclick="maximizeApp('version-info')">最大化</button>
+                    <button onclick="closeApp('version-info')">閉じる</button>
+                </div>
+            </div>
+            <div>バージョン情報を表示</div>
+        </div>
+    </main>
+    <script>
+        // ペイントアプリ
+        var paintCanvas = document.getElementById('paintCanvas');
+        var paintCtx = paintCanvas.getContext('2d');
+        var isPainting = false;
+        paintCanvas.addEventListener('mousedown', () => isPainting = true);
+        paintCanvas.addEventListener('mouseup', () => isPainting = false);
+        paintCanvas.addEventListener('mousemove', (e) => {
+            if (isPainting) {
+                paintCtx.lineTo(e.clientX - paintCanvas.offsetLeft, e.clientY - paintCanvas.offsetTop);
+                paintCtx.stroke();
+            }
+        });
+
+        // カメラアプリ
+        var video = document.getElementById('video');
+        var cameraCanvas = document.getElementById('cameraCanvas');
+        var cameraCtx = cameraCanvas.getContext('2d');
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => video.srcObject = stream)
+            .catch(err => console.error(err));
+        
+        function capturePhoto() {
+            cameraCtx.drawImage(video, 0, 0, cameraCanvas.width, cameraCanvas.height);
+            var imageData = cameraCanvas.toDataURL('image/png');
+            var link = document.createElement('a');
+            link.href = imageData;
+            link.download = 'photo.png';
+            link.click();
+        }
+
+        // ブラウザアプリ
+        function newTab() {
+            var browserIframe = document.getElementById('browserIframe');
+            browserIframe.src = 'about:blank';
+        }
+
+        function goBack() {
+            var browserIframe = document.getElementById('browserIframe').contentWindow.history;
+            if (browserIframe.length > 0) {
+                browserIframe.back();
+            }
+        }
+
+        function goForward() {
+            var browserIframe = document.getElementById('browserIframe').contentWindow.history;
+            if (browserIframe.length > 0) {
+                browserIframe.forward();
+            }
+        }
+
+        function goToUrl() {
+            var url = document.getElementById('url').value;
+            document.getElementById('browserIframe').src = url;
+        }
+
+        // タイマーアプリ
+        var timerInterval;
+        function startTimer() {
+            var input = document.getElementById('timerInput').value;
+            var display = document.getElementById('timerDisplay');
+            var seconds = parseInt(input);
+            timerInterval = setInterval(() => {
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    display.textContent = 'タイマー終了';
+                } else {
+                    display.textContent = `${seconds--} 秒`;
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            document.getElementById('timerDisplay').textContent = 'タイマー停止';
+        }
+
+        // 現在の時刻
+        function updateTime() {
+            var now = new Date();
+            var timeDisplay = document.getElementById('currentTime');
+            timeDisplay.textContent = now.toLocaleTimeString();
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // アプリのオープン/クローズ/最大化/最小化
+        function openApp(appId) {
+            document.querySelectorAll('.app').forEach(app => app.style.display = 'none');
+            document.getElementById(appId).style.display = 'block';
+        }
+
+        function closeApp(appId) {
+            document.getElementById(appId).style.display = 'none';
+        }
+
+        function minimizeApp(appId) {
+            var app = document.getElementById(appId);
+            app.style.height = '40px';
+            app.style.overflow = 'hidden';
+        }
+
+        function maximizeApp(appId) {
+            var app = document.getElementById(appId);
+            app.style.height = '600px';
+            app.style.overflow = 'auto';
+        }
+
+        document.getElementById('start-button').addEventListener('click', () => {
+            var startMenu = document.getElementById('start-menu');
+            startMenu.style.display = startMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // スタートアップサウンド
+        document.getElementById('startup-sound').play();
+    </script>
+</body>
+</html>
