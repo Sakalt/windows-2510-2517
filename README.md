@@ -12,5 +12,7 @@
 
 (https://sakalt.github.io/windows-2510-2517/NewPeriod1.0.html)
 
+(https://sakalt.github.io/windows-2510-2517/NewPeriod2.0.html)
+
 
 
