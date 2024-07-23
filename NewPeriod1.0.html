@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows NewPeriod1.0</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        .window {
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background-color: #333;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .window .corner-button {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #fff;
+        }
+
+        .window .corner-button.minimize {
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(145deg, #4d4d4d, #1a1a1a);
+        }
+
+        .window .corner-button.maximize {
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(145deg, #4d4d4d, #1a1a1a);
+        }
+
+        .window .corner-button.close {
+            bottom: 10px;
+            right: 10px;
+            background: linear-gradient(145deg, #b94d4d, #7a3e3e);
+        }
+
+        .window .corner-button:hover {
+            background: linear-gradient(145deg, #666, #333);
+        }
+
+        .central-circle {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background-color: #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            cursor: move;
+        }
+
+        .app-button {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #666;
+            color: #fff;
+            text-align: center;
+            line-height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .app-button:hover {
+            background-color: #999;
+        }
+
+        #browser { top: 10px; left: 50%; transform: translate(-50%, 0); }
+        #map { top: 50%; right: 10px; transform: translate(0, -50%); }
+        #settings { bottom: 10px; left: 50%; transform: translate(-50%, 0); }
+        #timer { top: 50%; left: 10px; transform: translate(0, -50%); }
+        #paint { bottom: 50px; left: 50%; transform: translate(-50%, 50px); }
+
+        .app-content {
+            display: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .app-content.active {
+            display: block;
+        }
+
+        #paint-canvas {
+            border: 1px solid #666;
+            background-color: #fff;
+        }
+
+        #paint-tools {
+            margin-top: 10px;
+        }
+
+        #google-map {
+            width: 100%;
+            height: 100%;
+        }
+
+        #browser-content, #settings-content, #timer-content {
+            padding: 20px;
+        }
+
+        #timer-content input {
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="window">
+            <div class="corner-button minimize">－</div>
+            <div class="corner-button maximize">□</div>
+            <div class="corner-button close">×</div>
+            <div class="central-circle">
+                <div class="drag-area"></div>
+                <div class="app-button" id="browser">ブラウザ</div>
+                <div class="app-button" id="map">Googleマップ</div>
+                <div class="app-button" id="settings">設定</div>
+                <div class="app-button" id="timer">タイマー</div>
+                <div class="app-button" id="paint">ペイント</div>
+                <!-- 追加アプリのボタン -->
+            </div>
+        </div>
+    </div>
+    <div class="app-content" id="browser-content">
+        <h2>ブラウザ</h2>
+        <iframe src="https://www.example.com" width="100%" height="90%" style="border: none;"></iframe>
+    </div>
+    <div class="app-content" id="map-content">
+        <h2>Googleマップ</h2>
+        <iframe id="google-map" src="https://www.google.com/maps/embed" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <div class="app-content" id="settings-content">
+        <h2>設定</h2>
+        <p>ここでシステム設定を調整できます。</p>
+        <!-- ここに設定の詳細な内容を追加 -->
+    </div>
+    <div class="app-content" id="timer-content">
+        <h2>タイマー</h2>
+        <input type="text" id="timer-input" placeholder="タイマーを設定">
+        <button id="start-timer">開始</button>
+        <p id="timer-display">00:00</p>
+    </div>
+    <div class="app-content" id="paint-content">
+        <h2>ペイント</h2>
+        <canvas id="paint-canvas" width="300" height="300"></canvas>
+        <div id="paint-tools">
+            <input type="color" id="color-picker" />
+            <button id="export-btn">エクスポート</button>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.app-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.app-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${this.id}-content`).classList.add('active');
+            });
+        });
+
+        // ドラッグ機能の追加
+        const centralCircle = document.querySelector('.central-circle');
+        const dragArea = document.querySelector('.drag-area');
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        dragArea.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - centralCircle.getBoundingClientRect().left;
+            offsetY = e.clientY - centralCircle.getBoundingClientRect().top;
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+            centralCircle.style.left = `${e.clientX - offsetX}px`;
+            centralCircle.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function onMouseUp() {
+            isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        // 最小化、最大化、閉じるボタンの機能
+        const windowElement = document.querySelector('.window');
+        let isMaximized = false;
+
+        document.querySelector('.corner-button.minimize').addEventListener('click', () => {
+            windowElement.style.display = 'none';
+        });
+
+        document.querySelector('.corner-button.maximize').addEventListener('click', () => {
+            if (isMaximized) {
+                windowElement.style.width = '400px';
+                windowElement.style.height = '400px';
+                windowElement.style.top = '50%';
+                windowElement.style.left = '50%';
+                windowElement.style.transform = 'translate(-50%, -50%)';
+            } else {
+                windowElement.style.width = '100vw';
+                windowElement.style.height = '100vh';
+                windowElement.style.top = '0';
+                windowElement.style.left = '0';
+                windowElement.style.transform = 'none';
+            }
+            isMaximized = !isMaximized;
+        });
+
+        document.querySelector('.corner-button.close').addEventListener('click', () => {
+            if (confirm('本当に閉じますか？')) {
+                windowElement.style.display = 'none'; // 簡易的な閉じる処理
+            }
+        });
+
+        // ペイント機能
+        const canvas = document.getElementById('paint-canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        let color = '#000000';
+
+        document.getElementById('color-picker').addEventListener('input', (e) => {
+            color = e.target.value;
+        });
+
+        canvas.addEventListener('mousedown', () => {
+            drawing = true;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!drawing) return;
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = color;
+            ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+            ctx.stroke();
+        });
+
+        document.getElementById('export-btn').addEventListener('click', () => {
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'drawing.png';
+            link.click();
+        });
+
+        // タイマー機能
+        const timerInput = document.getElementById('timer-input');
+        const timerDisplay = document.getElementById('timer-display');
+        let timerInterval;
+
+        document.getElementById('start-timer').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            const time = parseInt(timerInput.value, 10);
+            let seconds = time;
+            
+            timerInterval = setInterval(() => {
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert('タイマー終了');
+                    return;
+                }
+                seconds--;
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                timerDisplay.textContent = `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
